@@ -11,6 +11,70 @@ sec <- c(0.22317383, 0.82220999, 0.11944974, 0.23844417, 0.00416896, 0.04593599,
                0.55911048, 0.70385292, 0.91883758, 0.89169391, 0.9144542, 0.27766943)
 
 
+
+# Prueba 1: Prueba de la Ji Cuadrada #########################################################
+##############################################################################################
+##############################################################################################
+
+# Obtenemos el número de intervalos y el número de observaciones, respectivamente.
+k <- 5
+n <- length(num)
+
+# f es un vector que contiene las f_j. f_j es el número de observaciones en la muestra que se 
+# encuentran en el j-ésimo intervalo.
+
+# Aquí, hacemos los intervalos, contamos cuántos elementos de la muestra se encuentran en cada
+# uno de los intervalos y los juntamos en el vector "f".
+f <- c()
+limits <- seq.int(from = 0, to = 1, length.out = k+1)
+for(i in 1:k){
+  f[i] <- sum(num > limits[i] & num < limits[i+1])
+}
+
+# Ahora, usamos la fórmula para calcular el estadístico de prueba. "temp" es una variable
+# temporal (sólo se usa para guardar un valor y usarlo después).
+temp <- 0
+
+for(i in 1:k){
+  temp <- temp + (f[i] - (n/k))^(2)
+}
+  
+# Así, el estadístico queda:
+estadistico <- (k/n)*temp
+
+# Ahora, necesitamos aplicar la prueba de hipótesis. Las hipótesis son:
+# H_0: La muestra proviene de una distribución uniforme.
+# H_a: La muestra no proviene de una distribución uniforme.
+
+
+##############################################################################################
+# Prueba de hipótesis con aproximación
+
+
+z <- qnorm(p = 1-alfa)
+
+cuantil <- (k-1)*(1-(2/(9*(k-1)))+z*sqrt(2/(9*(k-1))))^(3)
+
+if(estadistico > cuantil){
+  print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
+        la muestra no proviene de una distribución uniforme.")
+} else{
+  print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+        la muestra no proviene de una distribución uniforme.")
+}
+
+
+
+
+
+# Prueba 2: Prueba serial ####################################################################
+##############################################################################################
+##############################################################################################
+
+
+
+
+
 # Kolmogorov-Smirnov #########################################################################
 ##############################################################################################
 ##############################################################################################
