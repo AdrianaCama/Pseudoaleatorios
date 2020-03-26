@@ -71,7 +71,85 @@ if(estadistico > cuantil){
 ##############################################################################################
 ##############################################################################################
 
+library(ggplot2)
 
+# Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
+k <- 5
+
+# Checar si el número de datos a verificar independencia es par
+if(length(num)%%2 == 1){
+  # Si no es par, generar una observación más a num y agregarla
+  temp <- 123456789
+  num_2 <- c(num,temp)
+} else {
+  num_2 <- num
+}
+
+# "Revolver" los números
+num_2 <- sample(num_2, size = length(num_2), replace = FALSE)
+U1 <- num_2[1:(length(num_2)/2)]
+U2 <- num_2[((length(num_2)/2)+1):length(num_2)]
+
+# Contar el número de observaciones que caen en la cuadrícula
+count <- matrix(0, k, k)
+
+for(i in 1:k){
+  for(j in 1:k){
+    temp <- matrix(0, length(U1), 2)
+    temp <- cbind(U1,U2)
+    
+    temp <- temp[rev(limits)[i] >= temp[,2],]
+    temp <- temp[temp[,2] > rev(limits)[i+1],]
+    temp <- temp[limits[j] < temp[,1],]
+
+    temp
+    
+    if(is.vector(temp)==TRUE){
+      if(temp[1] <= limits[j+1]){
+        count[i,j] <- 1
+      } else {
+        count[i,j] <- 0
+      }
+    } else {
+      temp <- temp[temp[,1] <= limits[j+1],]
+      count[i,j] <- length(temp)/2
+    }
+  }
+}
+# El número de observaciones en cada cuadrante se encuentra en la matriz "count".
+count
+
+# Calcular el número esperado de observaciones en cada cuadrante de la cuadrícula
+temp <- c(U1,U2)
+expected <- matrix(length(temp)/(k^2), k, k)
+
+#Cálculo del estadístico
+estadistico <- ((k^(2))/(length(temp)))*sum((count-expected)^2)
+
+# Cálculo del valor p
+df <- ((k^(2))-1)
+
+pvalue <- 1 - pchisq(estadistico, df = df, lower.tail = FALSE)
+
+if(pvalue < alfa){
+  print("Se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+        la muestra es independiente")
+} else{
+  print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+        la muestra no es independiente")
+}
+
+# Graficar los datos
+data <- data.frame(
+  U1 <- U1,
+  U2 <- U2
+)
+
+# Generar los límites de los intervalos para las gráficas
+limits <- seq(from = 0, to = 1, length.out = k + 1)
+
+graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
+graph 
 
 
 
@@ -327,8 +405,38 @@ PC<- function(secuencia, alpha){
 
 
 
+# Prueba 6: Correlación de atrasos ###########################################################
+##############################################################################################
+##############################################################################################
+
+# Obtener parámetros
+n <- length(num)
+
+# Número de atrasos
+atrasos <- 3
+h <- floor((n-1)/atrasos)-1
+
+# Formar vectores para el estimador considerando el número de atrasos
+for(i in 1:h){
+  
+}
+
+p_hat <-  ((12/(h+1)) * ()) - 3
+variance <- (13*h+7)/((h+1)^(2))
+
+
+
+
+# Resultados #################################################################################
+##############################################################################################
+##############################################################################################
+
 prueba1 <- KS(num, alfa)
 
 prueba2 <- CvM(num, alfa)
 
 prueba3 <- PC(sec, alfa)
+
+
+
+
