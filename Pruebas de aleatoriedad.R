@@ -416,14 +416,31 @@ n <- length(num)
 atrasos <- 3
 h <- floor((n-1)/atrasos)-1
 
-# Formar vectores para el estimador considerando el número de atrasos
-for(i in 1:h){
-  
-}
+num
 
-p_hat <-  ((12/(h+1)) * ()) - 3
+# Formar vectores para el estimador considerando el número de atrasos
+temp <- num[seq(from = 1, to = length(num), by = atrasos)]
+
+lag <- temp[-1]
+normal <- temp[-length(temp)]
+
+lag <- lag[1:h]
+normal <- normal[1:h]
+
+
+
+
+p_hat <-  ((12/(h+1)) * (sum(lag*normal))) - 3
 variance <- (13*h+7)/((h+1)^(2))
 
+A <- p_hat/sqrt(variance)
+z <- qnorm(1-(alfa/2))
+
+if(abs(A)>z){
+  print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que los datos están correlacionados")
+} else {
+  print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que los datos no son independientes")
+}
 
 
 
