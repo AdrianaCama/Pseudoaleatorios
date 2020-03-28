@@ -175,13 +175,13 @@ server <- function(input, output) {
   # Prueba 1:  Prueba de la Ji Cuadrada##############
   ###################################################
   ###################################################
-  ChiSquared <- function(numeros, alfa){
+  ChiSquaredTest <- function(numeros, alfa){
     # Obtenemos el número de intervalos y el número de observaciones, respectivamente
     ############################################################################################
     # PENDIENTE: Revisar si la k es establecida o el usuario la especifica.
     ############################################################################################
     k <- 5
-    n <- length(num)
+    n <- length(numeros)
     
     # f es un vector que contiene las f_j. f_j es el número de observaciones en la muestra que se 
     # encuentran en el j-ésimo intervalo.
@@ -191,7 +191,7 @@ server <- function(input, output) {
     f <- c()
     limits <- seq.int(from = 0, to = 1, length.out = k+1)
     for(i in 1:k){
-      f[i] <- sum(num > limits[i] & num < limits[i+1])
+      f[i] <- sum(numeros > limits[i] & numeros < limits[i+1])
     }
     
     # Ahora, usamos la fórmula para calcular el estadístico de prueba. "temp" es una variable

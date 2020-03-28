@@ -23,7 +23,7 @@ ChiSquared <- function(numeros, alfa){
   # PENDIENTE: Revisar si la k es establecida o el usuario la especifica.
   ############################################################################################
   k <- 5
-  n <- length(num)
+  n <- length(numeros)
   
   # f es un vector que contiene las f_j. f_j es el número de observaciones en la muestra que se 
   # encuentran en el j-ésimo intervalo.
@@ -33,7 +33,7 @@ ChiSquared <- function(numeros, alfa){
   f <- c()
   limits <- seq.int(from = 0, to = 1, length.out = k+1)
   for(i in 1:k){
-    f[i] <- sum(num > limits[i] & num < limits[i+1])
+    f[i] <- sum(numeros > limits[i] & numeros < limits[i+1])
   }
   
   # Ahora, usamos la fórmula para calcular el estadístico de prueba. "temp" es una variable
@@ -90,77 +90,106 @@ ChiSquared <- function(numeros, alfa){
 }
 
 
+
+
+
 # Prueba 2: Prueba serial ####################################################################
 ##############################################################################################
 ##############################################################################################
 
-library(ggplot2)
-
-# Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
-k <- 5
-
-# Checar si el número de datos a verificar independencia es par
-if(length(num)%%2 == 1){
-  # Si no es par, generar una observación más a num y agregarla
-  temp <- 123456789
-  num_2 <- c(num,temp)
-} else {
-  num_2 <- num
-}
-
-# "Revolver" los números
-num_2 <- sample(num_2, size = length(num_2), replace = FALSE)
-U1 <- num_2[1:(length(num_2)/2)]
-U2 <- num_2[((length(num_2)/2)+1):length(num_2)]
-
-# Contar el número de observaciones que caen en la cuadrícula
-count <- matrix(0, k, k)
-
-for(i in 1:k){
-  for(j in 1:k){
-    temp <- matrix(0, length(U1), 2)
-    temp <- cbind(U1,U2)
-    
-    temp <- temp[rev(limits)[i] >= temp[,2],]
-    temp <- temp[temp[,2] > rev(limits)[i+1],]
-    temp <- temp[limits[j] < temp[,1],]
-
-    temp
-    
-    if(is.vector(temp)==TRUE){
-      if(temp[1] <= limits[j+1]){
-        count[i,j] <- 1
+SerialTest <- function(numeros, alfa){
+  
+  library(ggplot2)
+  # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
+  k <- 5
+  
+  # Checar si el número de datos a verificar independencia es par
+  if(length(num)%%2 == 1){
+    # Si no es par, generar una observación más a num y agregarla
+    # PENDIENTE: Checar si está bien quitar una observación.
+    num_2 <- num[-1]
+  } else {
+    num_2 <- num
+  }
+  
+  # "Revolver" los números
+  num_2 <- sample(num_2, size = length(num_2), replace = FALSE)
+  U1 <- num_2[1:(length(num_2)/2)]
+  U2 <- num_2[((length(num_2)/2)+1):length(num_2)]
+  
+  # Contar el número de observaciones que caen en la cuadrícula
+  count <- matrix(0, k, k)
+  for(i in 1:k){
+    for(j in 1:k){
+      temp <- matrix(0, length(U1), 2)
+      temp <- cbind(U1,U2)
+      temp <- rbind(temp[rev(limits)[i] >= temp[,2],])
+      temp <- rbind(temp[temp[,2] > rev(limits)[i+1],])
+      temp <- rbind(temp[limits[j] < temp[,1],])
+      
+      temp
+      
+      if(is.vector(temp)==TRUE){
+        if(temp[1] <= limits[j+1]){
+          count[i,j] <- 1
+        } else {
+          count[i,j] <- 0
+        }
       } else {
-        count[i,j] <- 0
+        temp <- temp[temp[,1] <= limits[j+1],]
+        count[i,j] <- length(temp)/2
       }
-    } else {
-      temp <- temp[temp[,1] <= limits[j+1],]
-      count[i,j] <- length(temp)/2
     }
   }
+  # El número de observaciones en cada cuadrante se encuentra en la matriz "count".
+  count
+  
+  # Calcular el número esperado de observaciones en cada cuadrante de la cuadrícula
+  temp <- c(U1,U2)
+  expected <- matrix(length(temp)/(k^2), k, k)
+  
+  #Cálculo del estadístico
+  estadistico <- ((k^(2))/(length(temp)))*sum((count-expected)^2)
+  Y <- estadistico
+  
+  # Cálculo del valor p
+  df <- ((k^(2))-1)
+  
+  p_value <- 1 - pchisq(estadistico, df = df, lower.tail = FALSE)
+  
+  # Rechazo por región
+  if(estadistico > cuantil){
+    rechazo_por_region <- 1
+    # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
+    #     la muestra no proviene de una distribución uniforme.")
+  } else{
+    rechazo_por_region <- 0
+    # print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+    #     la muestra no proviene de una distribución uniforme.")
+  }
+  
+  # Rechazo por p-value
+  if(p_value <= alfa){
+    rechazo_por_pvalue <- 1
+    # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
+    #     la muestra no proviene de una distribución uniforme.")
+  } else{
+    rechazo_por_pvalue <- 0
+    # print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+    #     la muestra no proviene de una distribución uniforme.")
+  }
+  
+  return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue))
 }
-# El número de observaciones en cada cuadrante se encuentra en la matriz "count".
-count
 
-# Calcular el número esperado de observaciones en cada cuadrante de la cuadrícula
-temp <- c(U1,U2)
-expected <- matrix(length(temp)/(k^2), k, k)
 
-#Cálculo del estadístico
-estadistico <- ((k^(2))/(length(temp)))*sum((count-expected)^2)
-
-# Cálculo del valor p
-df <- ((k^(2))-1)
-
-pvalue <- 1 - pchisq(estadistico, df = df, lower.tail = FALSE)
-
-if(pvalue < alfa){
-  print("Se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
-        la muestra es independiente")
-} else{
-  print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
-        la muestra no es independiente")
-}
+# if(pvalue < alfa){
+#   print("Se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+#         la muestra es independiente")
+# } else{
+#   print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+#         la muestra no es independiente")
+# }
 
 # Graficar los datos
 data <- data.frame(
