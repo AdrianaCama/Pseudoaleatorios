@@ -125,33 +125,33 @@ server <- function(input, output) {
   
   ### Generación de valores aleatorios #######################################################
   ############################################################################################
-  reactive_go <- eventReactive(input$Button_go, {
+  observeEvent(input$Button_go, {
     # Cambiar (Esto solo es para probar)
-    numeros <- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474, 
+    numeros <<- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474, 
                  0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893, 
                  0.652066, 0.785885, 0.830250, 0.846584)
     
+    
+    output$random_table <- DT::renderDataTable({data.frame("Valores" = numeros)})
+    output$hist_uniformidad <- renderPlot({
+      ggplot(data.frame("Valores" = numeros)) + geom_histogram(aes(x=Valores,y=..density..), 
+                                                                     alpha=0.7, 
+                                                                     breaks=seq(0, 1, 0.05), 
+                                                                     closed="left", 
+                                                                     color="white", 
+                                                                     fill="orange") + 
+        stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) 
+      })
+    output$download <- downloadHandler(filename = "aleatorios.csv",
+                                       content = function(file) {
+                                         write.csv(numeros, file)
+                                         # Cambiar línea anterior por línea siguiente si se prefiere sin índices
+                                         #write.csv(numeros_dt, file, row.names = FALSE)
+                                       })
     shinyjs::show(id = "download")
     shinyjs::show(id = "hist_uniformidad")
-    return(numeros)
   })
-
-  output$random_table <- DT::renderDataTable({data.frame("Valores" = reactive_go())})
-  output$hist_uniformidad <- renderPlot({
-    ggplot(data.frame("Valores" = reactive_go())) + geom_histogram(aes(x=Valores,y=..density..), 
-                                        alpha=0.7, 
-                                        breaks=seq(0, 1, 0.05), 
-                                        closed="left", 
-                                        color="white", 
-                                        fill="orange") + 
-      stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) 
-  })
-  output$download <- downloadHandler(filename = "aleatorios.csv",
-  content = function(file) {
-    write.csv(reactive_go(), file)
-    # Cambiar línea anterior por línea siguiente si se prefiere sin índices
-    #write.csv(numeros_dt, file, row.names = FALSE)
-  })
+  
   
   ### Pruebas de aleatoriedad y/o uniformidad #################################################
   #############################################################################################
@@ -190,24 +190,60 @@ server <- function(input, output) {
   observeEvent(input$Button_evaluate, {
     #Codigo de las pruebas 
     if(input$pruebas=="Prueba de Cramer-von Mises"){
-      prueba <- CvM(reactive_go(), as.numeric(input$alpha))
+      prueba <- CvM(numeros, as.numeric(input$alpha))
       estadistico <- round(as.numeric(prueba[1]), 2)
       cuantil <- round(as.numeric(prueba[2]), 2)
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     }else{
+      #Quitar esto cuando ya esté todo
       pvalue <- 0.5
       rechazo_por_region <- 1
       rechazo_por_pvalue<- 1
+      cuantil <- 1
+      estadistico <- 0.5
+      k <- 3
+      d <- 1
       }
     
-    
-    output$hist_distribucion <- renderPlot({
-      ggdistribution(dnorm, seq(-3, 3, 0.1), mean = 0, sd = 1) + 
-        geom_vline(xintercept = estadistico, show_guide = TRUE) +
-        geom_vline(xintercept = cuantil, show_guide = TRUE, linetype="dashed") 
-    })
+    if(input$pruebas == "Prueba de Cramer-von Mises"  || input$pruebas == "Correlación de atrasos"){
+      output$hist_distribucion <- renderPlot({
+        ggplot(data.frame(x = c(-3, 3)), aes(x)) +
+          stat_function(fun = dnorm, args = list(mean = 0, sd = 1)) + 
+          stat_function(fun = dnorm,
+                        args = list(mean = 0, sd = 1),
+                        xlim = c(cuantil,3),
+                        geom = "area",
+                        fill = "orange") +
+          geom_vline(xintercept = estadistico) 
+          # scale_fill_manual(values = "orange", name = "Región de rechazo", 
+          #                   labels = "Región de rechazo")
+          #Ponerlo si queremos que se muestren los valores del estadístico y el cuantil 
+          #scale_x_continuous(breaks=c(-2,0,estadistico,cuantil,2))
+        })
+      }
+    if(input$pruebas == "Prueba de las corridas" || input$pruebas == "Prueba de la Ji Cuadrada" || 
+         input$pruebas == "Prueba Serial"){
+      if(input$pruebas=="Prueba de las corridas"){
+        df <- 6
+        }else if(input$pruebas=="Prueba de la Ji Cuadrada") {
+        df <- k - 1
+        }else{
+        df <- k^d - 1
+        }
+      output$hist_distribucion <- renderPlot({
+        xtemp <- rchisq(n = 1000,df = df)
+        ggplot(data.frame(x = xtemp), aes(xtemp)) +
+          stat_function(fun = dchisq, args = list(df = df)) + 
+          stat_function(fun = dchisq, 
+                        args = list(df = df),
+                        xlim = c(cuantil,max(xtemp)),
+                        geom = "area",
+                        fill = "orange") +
+          geom_vline(xintercept = estadistico) 
+        })
+    }
     if(rechazo_por_region == 1){
       output$text_region <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }else{
