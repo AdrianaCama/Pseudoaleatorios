@@ -103,7 +103,8 @@ ui <- dashboardPage(
                id = "tabbox_resultados",
                width = NULL,
                tabPanel("Región de rechazo",
-                        plotOutput("hist_distribucion") 
+                        plotOutput("hist_distribucion"),
+                        textOutput("text_region")
                         ),
                tabPanel("Valor p",
                         valueBoxOutput("valuebox_pvalue", width = 100),
@@ -205,6 +206,11 @@ server <- function(input, output) {
     output$hist_distribucion <- renderPlot({
       ggdistribution(dnorm, seq(-3, 3, 0.1), mean = 0, sd = 1)
     })
+    if(rechazo_por_region == 1){
+      output$text_region <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+    }else{
+      output$text_region <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+    }
     
 
     output$valuebox_pvalue <- renderValueBox({
@@ -213,7 +219,6 @@ server <- function(input, output) {
         color = "teal"
       )
     })
-    
     if(rechazo_por_pvalue == 1){
       output$text_pvalue <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }else{
