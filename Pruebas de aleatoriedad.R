@@ -379,7 +379,7 @@ PC<- function(secuencia, alpha){
   
   
   if(n>=4000){
-    p_value <- pnorm(R)
+    p_value <- pchisq(R, 6)
   } 
   # Falta cuando n<4000 con un else
   
