@@ -156,6 +156,24 @@ server <- function(input, output) {
   ### Pruebas de aleatoriedad y/o uniformidad #################################################
   #############################################################################################
   
+  # Prueba 1:  Prueba de la Ji Cuadrada##############
+  ###################################################
+  ###################################################
+  #Falta aquí
+  
+  
+  # Prueba 2: "Prueba Serial"########################
+  ###################################################
+  ###################################################
+  #Falta aquí
+  
+  
+  # Prueba 3: Prueba de Kolmogorov-Smirnov  #########
+  ###################################################
+  ###################################################
+  #Falta aquí
+  
+
   # Prueba 4: Cramer-von Mises ######################
   ###################################################
   ###################################################
@@ -187,6 +205,18 @@ server <- function(input, output) {
   }
   
   
+  # Prueba 5: Prueba de las corridas ################
+  ###################################################
+  ###################################################
+  #Falta aquí
+  
+  # Prueba  6: Correlación de atrasos  ##############
+  ###################################################
+  ###################################################
+  #Falta aquí
+  
+  
+  
   observeEvent(input$Button_evaluate, {
     #Codigo de las pruebas 
     if(input$pruebas=="Prueba de Cramer-von Mises"){
@@ -207,6 +237,9 @@ server <- function(input, output) {
       d <- 1
       }
     
+    
+    ### Resultados de la región de rechazo ###
+    ##########################################
     if(input$pruebas == "Prueba de Cramer-von Mises"  || input$pruebas == "Correlación de atrasos"){
       output$hist_distribucion <- renderPlot({
         ggplot(data.frame(x = c(-3, 3)), aes(x)) +
@@ -250,7 +283,10 @@ server <- function(input, output) {
       output$text_region <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }
     
-
+    
+    
+    ### Resultados del valor p ###
+    ##############################
     output$valuebox_pvalue <- renderValueBox({
       valueBox(
         pvalue, "Valor p", icon = icon("percent"),
