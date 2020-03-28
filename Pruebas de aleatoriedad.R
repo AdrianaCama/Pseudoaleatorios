@@ -104,12 +104,12 @@ SerialTest <- function(numeros, alfa){
   k <- 5
   
   # Checar si el número de datos a verificar independencia es par
-  if(length(num)%%2 == 1){
+  if(length(numeros)%%2 == 1){
     # Si no es par, generar una observación más a num y agregarla
     # PENDIENTE: Checar si está bien quitar una observación.
-    num_2 <- num[-1]
+    num_2 <- numeros[-1]
   } else {
-    num_2 <- num
+    num_2 <- numeros
   }
   
   # "Revolver" los números
@@ -196,8 +196,7 @@ SerialTest <- function(numeros, alfa){
   graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
   graph 
   
-  
-  return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue))
+  return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue, graph))
 }
 
 
@@ -466,37 +465,49 @@ PC<- function(secuencia, alpha){
 ##############################################################################################
 ##############################################################################################
 
-# Obtener parámetros
-n <- length(num)
-
-# Número de atrasos
-atrasos <- 3
-h <- floor((n-1)/atrasos)-1
-
-num
-
-# Formar vectores para el estimador considerando el número de atrasos
-temp <- num[seq(from = 1, to = length(num), by = atrasos)]
-
-lag <- temp[-1]
-normal <- temp[-length(temp)]
-
-lag <- lag[1:h]
-normal <- normal[1:h]
-
-
-
-
-p_hat <-  ((12/(h+1)) * (sum(lag*normal))) - 3
-variance <- (13*h+7)/((h+1)^(2))
-
-A <- p_hat/sqrt(variance)
-z <- qnorm(1-(alfa/2))
-
-if(abs(A)>z){
-  print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que los datos están correlacionados")
-} else {
-  print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que los datos no son independientes")
+CorrelationTest <- function(numeros,alfa){
+  # Obtener parámetros
+  
+  n <- length(numeros)
+  
+  # Número de atrasos
+  atrasos <- 3
+  h <- floor((n-1)/atrasos)-1
+  
+  # Formar vectores para el estimador considerando el número de atrasos
+  temp <- numeros[seq(from = 1, to = n, by = atrasos)]
+  
+  lag <- temp[-1]
+  normal <- temp[-length(temp)]
+  
+  lag <- lag[1:h]
+  normal <- normal[1:h]
+  
+  p_hat <-  ((12/(h+1)) * (sum(lag*normal))) - 3
+  variance <- (13*h+7)/((h+1)^(2))
+  
+  A <- p_hat/sqrt(variance)
+  Y <- A
+  z <- qnorm(1-(alfa/2))
+  quantile_CorrelationTest <- z
+  
+  p_value <- 2*pnorm(0.8641, lower.tail = FALSE)
+  
+  if(abs(A) > quantile_CorrelationTest){
+    rechazo_por_region <- 1
+  } else{
+    rechazo_por_region <- 0
+  }
+  
+  
+  if(p_value <= alfa){
+    rechazo_por_pvalue <- 1
+  } else{
+    rechazo_por_pvalue <- 0
+  }
+  
+  return(list(Y, quantile_CorrelationTest, p_value, rechazo_por_region, rechazo_por_pvalue))
+  
 }
 
 

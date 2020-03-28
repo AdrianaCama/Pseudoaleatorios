@@ -251,13 +251,117 @@ server <- function(input, output) {
   # Prueba 2: "Prueba Serial"########################
   ###################################################
   ###################################################
-  #Falta aquí
+  SerialTest <- function(numeros, alfa){
+    
+    library(ggplot2)
+    # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
+    k <- 5
+    
+    # Checar si el número de datos a verificar independencia es par
+    if(length(numeros)%%2 == 1){
+      # Si no es par, generar una observación más a num y agregarla
+      # PENDIENTE: Checar si está bien quitar una observación.
+      num_2 <- numeros[-1]
+    } else {
+      num_2 <- numeros
+    }
+    
+    # "Revolver" los números
+    num_2 <- sample(num_2, size = length(num_2), replace = FALSE)
+    U1 <- num_2[1:(length(num_2)/2)]
+    U2 <- num_2[((length(num_2)/2)+1):length(num_2)]
+    
+    # Contar el número de observaciones que caen en la cuadrícula
+    count <- matrix(0, k, k)
+    for(i in 1:k){
+      for(j in 1:k){
+        temp <- matrix(0, length(U1), 2)
+        temp <- cbind(U1,U2)
+        temp <- rbind(temp[rev(limits)[i] >= temp[,2],])
+        temp <- rbind(temp[temp[,2] > rev(limits)[i+1],])
+        temp <- rbind(temp[limits[j] < temp[,1],])
+        
+        temp
+        
+        if(is.vector(temp)==TRUE){
+          if(temp[1] <= limits[j+1]){
+            count[i,j] <- 1
+          } else {
+            count[i,j] <- 0
+          }
+        } else {
+          temp <- temp[temp[,1] <= limits[j+1],]
+          count[i,j] <- length(temp)/2
+        }
+      }
+    }
+    # El número de observaciones en cada cuadrante se encuentra en la matriz "count".
+    count
+    
+    # Calcular el número esperado de observaciones en cada cuadrante de la cuadrícula
+    temp <- c(U1,U2)
+    expected <- matrix(length(temp)/(k^2), k, k)
+    
+    #Cálculo del estadístico
+    estadistico <- ((k^(2))/(length(temp)))*sum((count-expected)^2)
+    Y <- estadistico
+    
+    # Grados de libertad
+    df <- ((k^(2))-1)
+    
+    # Cálculo del cuantil
+    cuantil <- qchisq(p=1-alfa,df=df,lower.tail = TRUE)
+    quantile_SerialTest <- cuantil
+    
+    # Cálculo del valor p
+    p_value <- 1- pchisq(estadistico, df = df, lower.tail = FALSE)
+    
+    # Rechazo por región
+    if(estadistico > cuantil){
+      rechazo_por_region <- 1
+      # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    } else{
+      rechazo_por_region <- 0
+      # print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    }
+    
+    # Rechazo por p-value
+    if(p_value <= alfa){
+      rechazo_por_pvalue <- 1
+      # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    } else{
+      rechazo_por_pvalue <- 0
+      # print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    }
+    
+    # Graficar los datos
+    data <- data.frame(
+      U1 <- U1,
+      U2 <- U2
+    )
+    
+    # Generar los límites de los intervalos para las gráficas
+    limits <- seq(from = 0, to = 1, length.out = k + 1)
+    
+    graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
+    graph 
+    
+    return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue, graph))
+  }
+  
+  
   
   
   # Prueba 3: Prueba de Kolmogorov-Smirnov  #########
   ###################################################
   ###################################################
   #Falta aquí
+  
+  
   
 
   # Prueba 4: Cramer-von Mises ######################
@@ -299,7 +403,53 @@ server <- function(input, output) {
   # Prueba  6: Correlación de atrasos  ##############
   ###################################################
   ###################################################
-  #Falta aquí
+  CorrelationTest <- function(numeros,alfa){
+    # Obtener parámetros
+    
+    n <- length(numeros)
+    
+    # Número de atrasos
+    atrasos <- 3
+    h <- floor((n-1)/atrasos)-1
+    
+    # Formar vectores para el estimador considerando el número de atrasos
+    temp <- numeros[seq(from = 1, to = n, by = atrasos)]
+    
+    lag <- temp[-1]
+    normal <- temp[-length(temp)]
+    
+    lag <- lag[1:h]
+    normal <- normal[1:h]
+    
+    p_hat <-  ((12/(h+1)) * (sum(lag*normal))) - 3
+    variance <- (13*h+7)/((h+1)^(2))
+    
+    A <- p_hat/sqrt(variance)
+    Y <- A
+    z <- qnorm(1-(alfa/2))
+    quantile_CorrelationTest <- z
+    
+    p_value <- 2*pnorm(0.8641, lower.tail = FALSE)
+    
+    if(abs(A) > quantile_CorrelationTest){
+      rechazo_por_region <- 1
+    } else{
+      rechazo_por_region <- 0
+    }
+    
+    
+    if(p_value <= alfa){
+      rechazo_por_pvalue <- 1
+    } else{
+      rechazo_por_pvalue <- 0
+    }
+    
+    return(list(Y, quantile_CorrelationTest, p_value, rechazo_por_region, rechazo_por_pvalue))
+    
+  }
+  
+  
+  
   
   
   
