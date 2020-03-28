@@ -1,6 +1,9 @@
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
+library(ggplot2)
+library(ggfortify)
+
 
 ui <- dashboardPage(
   # App title ----
@@ -83,7 +86,7 @@ ui <- dashboardPage(
              tabBox(
                title = "Generado",
                #solidHeader = TRUE,
-               id = "tabbox",
+               id = "tabbox_generado",
                width = NULL,
                #background = "yellow",
                tabPanel("Números generados",
@@ -91,15 +94,21 @@ ui <- dashboardPage(
                         downloadButton("download", label = "Descargar CSV")
                         ),
                tabPanel("Histograma",
-                        plotOutput("hist")
+                        plotOutput("hist_uniformidad")
                         )
                ),
-             box(
-               title = "Resultados de las pruebas",
+             tabBox(
+               title = "Resutados de las pruebas",
+               #solidHeader = TRUE,
+               id = "tabbox_resultados",
                width = NULL,
-               valueBoxOutput("valuebox_pvalue", width = 100),
-               textOutput("text_pvalue")
-               # Cambiar por algo
+               tabPanel("Región de rechazo",
+                        plotOutput("hist_distribucion") 
+                        ),
+               tabPanel("Valor p",
+                        valueBoxOutput("valuebox_pvalue", width = 100),
+                        textOutput("text_pvalue")
+                        )
                )
              )
       )
@@ -109,7 +118,8 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   shinyjs::hide(id = "download")
-  shinyjs::hide(id = "hist")
+  shinyjs::hide(id = "hist_uniformidad")
+  shinyjs::hide(id = "hist_distribucion")
   
   
   ### Generación de valores aleatorios #######################################################
@@ -121,12 +131,12 @@ server <- function(input, output) {
                  0.652066, 0.785885, 0.830250, 0.846584)
     
     shinyjs::show(id = "download")
-    shinyjs::show(id = "hist")
+    shinyjs::show(id = "hist_uniformidad")
     return(numeros)
   })
 
   output$random_table <- DT::renderDataTable({data.frame("Valores" = reactive_go())})
-  output$hist <- renderPlot({
+  output$hist_uniformidad <- renderPlot({
     ggplot(data.frame("Valores" = reactive_go())) + geom_histogram(aes(x=Valores,y=..density..), 
                                         alpha=0.7, 
                                         breaks=seq(0, 1, 0.05), 
@@ -186,8 +196,15 @@ server <- function(input, output) {
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     }else{
-      pvalue <- .5
+      pvalue <- 0.5
+      rechazo_por_region <- 1
+      rechazo_por_pvalue<- 1
       }
+    
+    
+    output$hist_distribucion <- renderPlot({
+      ggdistribution(dnorm, seq(-3, 3, 0.1), mean = 0, sd = 1)
+    })
     
 
     output$valuebox_pvalue <- renderValueBox({
@@ -197,12 +214,14 @@ server <- function(input, output) {
       )
     })
     
-    if(rechazo_por_region == 1){
+    if(rechazo_por_pvalue == 1){
       output$text_pvalue <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }else{
       output$text_pvalue <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }
     
+    
+    shinyjs::show(id = "hist_distribucion")
   })
   
 }
