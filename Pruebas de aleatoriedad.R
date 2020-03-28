@@ -152,10 +152,15 @@ SerialTest <- function(numeros, alfa){
   estadistico <- ((k^(2))/(length(temp)))*sum((count-expected)^2)
   Y <- estadistico
   
-  # Cálculo del valor p
+  # Grados de libertad
   df <- ((k^(2))-1)
   
-  p_value <- 1 - pchisq(estadistico, df = df, lower.tail = FALSE)
+  # Cálculo del cuantil
+  cuantil <- qchisq(p=1-alfa,df=df,lower.tail = TRUE)
+  quantile_SerialTest <- cuantil
+  
+  # Cálculo del valor p
+  p_value <- 1- pchisq(estadistico, df = df, lower.tail = FALSE)
   
   # Rechazo por región
   if(estadistico > cuantil){
@@ -179,6 +184,19 @@ SerialTest <- function(numeros, alfa){
     #     la muestra no proviene de una distribución uniforme.")
   }
   
+  # Graficar los datos
+  data <- data.frame(
+    U1 <- U1,
+    U2 <- U2
+  )
+  
+  # Generar los límites de los intervalos para las gráficas
+  limits <- seq(from = 0, to = 1, length.out = k + 1)
+  
+  graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
+  graph 
+  
+  
   return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue))
 }
 
@@ -190,19 +208,6 @@ SerialTest <- function(numeros, alfa){
 #   print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
 #         la muestra no es independiente")
 # }
-
-# Graficar los datos
-data <- data.frame(
-  U1 <- U1,
-  U2 <- U2
-)
-
-# Generar los límites de los intervalos para las gráficas
-limits <- seq(from = 0, to = 1, length.out = k + 1)
-
-graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
-graph 
-
 
 
 # Kolmogorov-Smirnov #########################################################################
