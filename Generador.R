@@ -96,7 +96,8 @@ ui <- dashboardPage(
                ),
              box(
                title = "Resultados de las pruebas",
-               width = NULL
+               width = NULL,
+               valueBoxOutput("valuebox_pvalue", width = 100),
                # Cambiar por algo
                )
              )
@@ -109,6 +110,9 @@ server <- function(input, output) {
   shinyjs::hide(id = "download")
   shinyjs::hide(id = "hist")
   
+  
+  ### Generación de valores aleatorios #######################################################
+  ############################################################################################
   reactive_go <- eventReactive(input$Button_go, {
     # Cambiar (Esto solo es para probar)
     numeros <- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474, 
@@ -117,13 +121,12 @@ server <- function(input, output) {
     
     shinyjs::show(id = "download")
     shinyjs::show(id = "hist")
-    numeros_dt <- data.frame("Valores" = numeros)
-    return(numeros_dt)
+    return(numeros)
   })
 
-  output$random_table <- DT::renderDataTable({reactive_go()})
+  output$random_table <- DT::renderDataTable({data.frame("Valores" = reactive_go())})
   output$hist <- renderPlot({
-    ggplot(reactive_go()) + geom_histogram(aes(x=Valores,y=..density..), 
+    ggplot(data.frame("Valores" = reactive_go())) + geom_histogram(aes(x=Valores,y=..density..), 
                                         alpha=0.7, 
                                         breaks=seq(0, 1, 0.05), 
                                         closed="left", 
@@ -136,6 +139,62 @@ server <- function(input, output) {
     write.csv(reactive_go(), file)
     # Cambiar línea anterior por línea siguiente si se prefiere sin índices
     #write.csv(numeros_dt, file, row.names = FALSE)
+  })
+  
+  ### Pruebas de aleatoriedad y/o uniformidad #################################################
+  #############################################################################################
+  
+  # Prueba 4: Cramer-von Mises ######################
+  ###################################################
+  ###################################################
+  CvM <- function(numeros, alpha){
+    numeros_ordenados <- sort(numeros, decreasing=FALSE)
+    N <- length(numeros_ordenados)
+    empirica <- (2*seq(1, N, 1) - 1)/ (2*N)
+    
+    Y <- (1 / (12*N)) + sum((numeros_ordenados - empirica)^2)
+    quantile_CvM <- qnorm(1-alpha)
+    
+    p_value <- pnorm(Y)
+
+    
+    if(Y > quantile_CvM){
+      rechazo_por_region <- 1
+    } else{
+      rechazo_por_region <- 0
+    }
+    
+    
+    if(p_value <= alpha){
+      rechazo_por_pvalue <- 1
+    } else{
+      rechazo_por_pvalue <- 0
+    }
+    
+    return(list(Y, quantile_CvM, p_value, rechazo_por_region, rechazo_por_pvalue))
+  }
+  
+  
+  observeEvent(input$Button_evaluate, {
+    #Codigo de las pruebas 
+    if(input$pruebas=="Prueba de Cramer-von Mises"){
+      prueba <- CvM(reactive_go(), as.numeric(input$alpha))
+      estadistico <- round(as.numeric(prueba[1]), 2)
+      cuantil <- round(as.numeric(prueba[2]), 2)
+      pvalue <- round(as.numeric(prueba[3]), 2)
+      rechazo_por_region <- as.numeric(prueba[4])
+      rechazo_por_pvalue <- as.numeric(prueba[5])
+    }else{
+      pvalue <- .5
+      }
+    
+
+    output$valuebox_pvalue <- renderValueBox({
+      valueBox(
+        pvalue, "Valor p", icon = icon("percent"),
+        color = "teal"
+      )
+    })
   })
   
 }
