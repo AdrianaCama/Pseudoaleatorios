@@ -78,6 +78,12 @@ ui <- dashboardPage(
                            label = "Selecciona el nivel de significancia ",
                            choices = c(0.01, 0.025, 0.05, 0.1),
                            selected = 0.05),
+               # numericInput(inputId = "intervals",
+               #              label = "Número de intervalos:",
+               #              min = 2,
+               #              max = 100,
+               #              value = 5
+               # ),
                actionButton(inputId = "Button_evaluate", label = "Probar uniformidad y/o 
                             independencia")
                )
@@ -132,6 +138,16 @@ server <- function(input, output) {
                  0.652066, 0.785885, 0.830250, 0.846584)
     
     
+    ### Generador de valores de una v.a. con distribución uniforme
+    
+    ### Monte Carlo
+    
+    ### Generador Congruencial Multiplicativo
+    
+    ### Generador Congruencial Mixto o Congruencial Lineal
+    
+    
+    
     output$random_table <- DT::renderDataTable({data.frame("Valores" = numeros)})
     output$hist_uniformidad <- renderPlot({
       ggplot(data.frame("Valores" = numeros)) + geom_histogram(aes(x=Valores,y=..density..), 
@@ -159,7 +175,77 @@ server <- function(input, output) {
   # Prueba 1:  Prueba de la Ji Cuadrada##############
   ###################################################
   ###################################################
-  #Falta aquí
+  ChiSquared <- function(numeros, alfa){
+    # Obtenemos el número de intervalos y el número de observaciones, respectivamente
+    ############################################################################################
+    # PENDIENTE: Revisar si la k es establecida o el usuario la especifica.
+    ############################################################################################
+    k <- 5
+    n <- length(num)
+    
+    # f es un vector que contiene las f_j. f_j es el número de observaciones en la muestra que se 
+    # encuentran en el j-ésimo intervalo.
+    
+    # Aquí, hacemos los intervalos, contamos cuántos elementos de la muestra se encuentran en cada
+    # uno de los intervalos y los juntamos en el vector "f".
+    f <- c()
+    limits <- seq.int(from = 0, to = 1, length.out = k+1)
+    for(i in 1:k){
+      f[i] <- sum(num > limits[i] & num < limits[i+1])
+    }
+    
+    # Ahora, usamos la fórmula para calcular el estadístico de prueba. "temp" es una variable
+    # temporal (sólo se usa para guardar un valor y usarlo después).
+    temp <- 0
+    
+    for(i in 1:k){
+      temp <- temp + (f[i] - (n/k))^(2)
+    }
+    
+    # Así, el estadístico queda:
+    estadistico <- (k/n)*temp
+    Y <- estadistico
+    
+    # Ahora, necesitamos aplicar la prueba de hipótesis. Las hipótesis son:
+    # H_0: La muestra proviene de una distribución uniforme.
+    # H_a: La muestra no proviene de una distribución uniforme.
+    
+    
+    ##############################################################################################
+    # Prueba de hipótesis con aproximación
+    
+    
+    z <- qnorm(p = 1-alfa)
+    
+    cuantil <- (k-1)*(1-(2/(9*(k-1)))+z*sqrt(2/(9*(k-1))))^(3)
+    quantile_ChiSquared <- cuantil
+    
+    p_value <- qchisq(p=1-alfa,df=k-1,lower.tail = FALSE)
+    
+    # Rechazo por región
+    if(estadistico > cuantil){
+      rechazo_por_region <- 1
+      # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    } else{
+      rechazo_por_region <- 0
+      # print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    }
+    
+    # Rechazo por p-value
+    if(p_value <= alfa){
+      rechazo_por_pvalue <- 1
+      # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    } else{
+      rechazo_por_pvalue <- 0
+      # print("No se rechaza la hipótesis nula. Es decir, no existe suficiente evidencia para afirmar que
+      #     la muestra no proviene de una distribución uniforme.")
+    }
+    
+    return(list(Y, quantile_ChiSquared, p_value, rechazo_por_region, rechazo_por_pvalue))
+  }
   
   
   # Prueba 2: "Prueba Serial"########################
