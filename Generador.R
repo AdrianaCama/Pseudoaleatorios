@@ -43,7 +43,7 @@ ui <- dashboardPage(
                numericInput(inputId = "n",
                             label = "n:",
                             min = 0,
-                            value = 20
+                            value = 10000
                             ),
                numericInput(inputId = "seed",
                             label = "Semilla:",
@@ -98,6 +98,7 @@ ui <- dashboardPage(
                title = "Resultados de las pruebas",
                width = NULL,
                valueBoxOutput("valuebox_pvalue", width = 100),
+               textOutput("text_pvalue")
                # Cambiar por algo
                )
              )
@@ -195,6 +196,13 @@ server <- function(input, output) {
         color = "teal"
       )
     })
+    
+    if(rechazo_por_region == 1){
+      output$text_pvalue <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+    }else{
+      output$text_pvalue <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+    }
+    
   })
   
 }
