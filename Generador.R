@@ -204,7 +204,9 @@ server <- function(input, output) {
     
     
     output$hist_distribucion <- renderPlot({
-      ggdistribution(dnorm, seq(-3, 3, 0.1), mean = 0, sd = 1)
+      ggdistribution(dnorm, seq(-3, 3, 0.1), mean = 0, sd = 1) + 
+        geom_vline(xintercept = estadistico, show_guide = TRUE) +
+        geom_vline(xintercept = cuantil, show_guide = TRUE, linetype="dashed") 
     })
     if(rechazo_por_region == 1){
       output$text_region <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
