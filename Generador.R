@@ -274,7 +274,7 @@ server <- function(input, output) {
   ###################################################
   ###################################################
   SerialTest <- function(numeros, alfa){
-
+    
     library(ggplot2)
     # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
     k <- 5
@@ -336,7 +336,7 @@ server <- function(input, output) {
     quantile_SerialTest <- cuantil
     
     # Cálculo del valor p
-    p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
+    p_value <- pchisq(q=estadistico,df=df,lower.tail = FALSE)
     # p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     
     # Rechazo por región
