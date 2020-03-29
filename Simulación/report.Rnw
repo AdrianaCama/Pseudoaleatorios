@@ -1,0 +1,112 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{ae}
+\usepackage{tikz}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+<<echo = F, results=tex>>=
+directory <- getwd()
+matrix <- read.csv(paste0(directory,'/colas.csv'))
+matrix <- matrix[,-1]
+#matrix <- format(matrix, digits = 3, scientific = FALSE)
+
+# round Último evento, Hora, A, D, Retraso, ÁreaQt, ÁreaBt, 1ro, 2do, 3ro, 4to to 2 decimal places  
+# \tikz \node[draw,circle]{12.32}
+
+for (i in 1:dim(matrix)[1]) {
+  
+  evento <- toString(matrix[i,1])
+  t <- toString(matrix[i,2])
+  estatus_servidor <-toString(matrix[i,3])
+  numero_cola <- toString(matrix[i,4])
+  tiempos_llegada_1 <- toString(matrix[i,13])
+  tiempos_llegada_2 <- toString(matrix[i,14])
+  tiempos_llegada_3 <- toString(matrix[i,15])
+  tiempos_llegada_4 <- toString(matrix[i,16])
+  tiempo_ultimo_evento <- toString(matrix[i,5])
+  hora <- toString(matrix[i,6])
+  A <- toString(matrix[i,7])
+  D <- toString(matrix[i,8])
+  numero_clientes <- toString(matrix[i,9])
+  total_retraso <- toString(matrix[i,10])
+  area_qt <- toString(matrix[i,11])
+  area_bt <- toString(matrix[i,12])
+  
+
+  cat("\\begin{table}[]");
+  cat("\\centering\\break ");
+  cat("\\resizebox{\\textwidth}{!}{");
+  cat("\\begin{tabular}{|lll|lllllclll|lclccl|}");
+  cat("\\hline");
+  cat("\\multicolumn{3}{|c|}{\\textbf{",evento,"}} & \\multicolumn{15}{l|}{\\textbf{Estado del sistema}} \\\\ \\cline{4-18}");
+  cat("&  &  &  &  &  &  &  & \\multicolumn{1}{l}{} &  &  &  &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l|}{} & \\multicolumn{1}{l}{} & \\multicolumn{1}{l}{} &  \\\\ \\cline{9-9} \\cline{17-17}");
+  
+  # Jiji 4, Jiji 10
+  cat("& \\multicolumn{1}{c}{\\textit{t}} &  &  &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_1,"} &  &  &  &  & Hora & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{A} & \\multicolumn{1}{c|}{",A,"} &  \\\\ \\cline{2-2} \\cline{5-5} \\cline{7-7} \\cline{9-9} \\cline{11-11} \\cline{14-14} \\cline{17-17}", sep = "");
+  
+  # Jiji 1, Jiji 2, Jiji 3, Jiji 5, Jiji 8, Jiji 9, Jiji 11, Jiji 
+  cat("\\multicolumn{1}{|l|}{} & \\multicolumn{1}{c|}{",t,"} &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",estatus_servidor,"} & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",numero_cola,"} & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_2,"} & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempo_ultimo_evento,"} &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",hora,"} & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{D} & \\multicolumn{1}{c|}{",D,"} &  \\\\ \\cline{2-2} \\cline{5-5} \\cline{7-7} \\cline{9-9} \\cline{11-11} \\cline{14-14} \\cline{17-17}", sep = "");
+  
+  # Jiji 6
+  cat("&  &  &  &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_3,"} &  &  &  &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l|}{} & \\multicolumn{3}{c|}{Lista de eventos} \\\\ \\cline{9-9} \\cline{13-18}", sep = "");
+  
+  # Jiji 7
+  
+  if(estatus_servidor == "0"){
+    cat("&  &  &  &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_4,"} &  &  &  &  & \\multicolumn{1}{l}{} &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l}{} &  \\\\ \\cline{9-9} \\cline{14-17}", sep = "");
+  } else{
+    cat("& ACTIVO &  &  &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_4,"} &  &  &  &  & \\multicolumn{1}{l}{} &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l}{} &  \\\\ \\cline{9-9} \\cline{14-17}", sep = "");
+  }
+  
+  # Jiji 12, Jiji 13, Jiji 14, Jiji 15
+  
+  
+  if(tiempos_llegada_1 == "0"){
+    cat("& &  &  &  &  &  &  & \\multicolumn{1}{l}{} &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",numero_clientes,"} & \\multicolumn{1}{c|}{",total_retraso,"} & \\multicolumn{1}{c|}{",area_qt,"} & \\multicolumn{1}{c|}{",area_bt,"} &  \\\\ \\cline{14-17}", sep = "");
+  } else {
+    cat("& \\tikz \\node[draw,circle]{",tiempos_llegada_1,"} &  &  &  &  &  &  & \\multicolumn{1}{l}{} &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",numero_clientes,"} & \\multicolumn{1}{c|}{",total_retraso,"} & \\multicolumn{1}{c|}{",area_qt,"} & \\multicolumn{1}{c|}{",area_bt,"} &  \\\\ \\cline{14-17}", sep = "");
+  }
+  
+  if(tiempos_llegada_2 == "0"){
+    cat("& &  &  & \\multicolumn{1}{c}{Estatus} & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{Número} & \\multicolumn{1}{c}{} & Tiempos & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{Tiempo} &  &  &  & \\multicolumn{1}{c}{} &  &  &  \\\\");
+  } else {
+    cat("& \\tikz \\node[draw,circle]{",tiempos_llegada_2,"} &  &  & \\multicolumn{1}{c}{Estatus} & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{Número} & \\multicolumn{1}{c}{} & Tiempos & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{Tiempo} &  &  &  & \\multicolumn{1}{c}{} &  &  &  \\\\");
+  }
+  
+  if(tiempos_llegada_3 == "0"){
+    cat("& &  &  & \\multicolumn{1}{c}{del} & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{en la} & \\multicolumn{1}{c}{} & de & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{del último} &  &  & Número & \\multicolumn{1}{c}{Total de} & Área de & Área de &  \\\\");
+  } else {
+    cat("& \\tikz \\node[draw,circle]{",tiempos_llegada_3,"} &  &  & \\multicolumn{1}{c}{del} & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{en la} & \\multicolumn{1}{c}{} & de & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{del último} &  &  & Número & \\multicolumn{1}{c}{Total de} & Área de & Área de &  \\\\");
+  } 
+  
+  if(tiempos_llegada_4 == "0"){
+    cat("&  &  &  & \\multicolumn{1}{c}{servidor} & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{cola} & \\multicolumn{1}{c}{} & llegada & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{evento} &  &  & de clientes & \\multicolumn{1}{c}{retraso} & Q(t) & B(t) &  \\\\");
+  } else {
+    cat("& \\tikz \\node[draw,circle]{",tiempos_llegada_4,"} &  &  & \\multicolumn{1}{c}{servidor} & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{cola} & \\multicolumn{1}{c}{} & llegada & \\multicolumn{1}{c}{} & \\multicolumn{1}{c}{evento} &  &  & de clientes & \\multicolumn{1}{c}{retraso} & Q(t) & B(t) &  \\\\");
+  }
+  
+  
+  cat("&  &  &  &  &  &  &  & \\multicolumn{1}{l}{} &  &  &  &  & \\multicolumn{1}{l}{} &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l}{} &  \\\\ \\cline{4-18} ");
+  cat("\\multicolumn{3}{|l|}{\\textbf{Sistema}} & \\multicolumn{15}{c|}{\\textbf{Representación de la salida de computadora}} \\\\ \\hline");
+  cat("\\end{tabular}");
+  cat("}");
+  cat("\\end{table}");
+  
+  if((i%%4)==0){
+    cat('\\clearpage\n')
+  }
+  
+}
+
+@
+
+
+
+
+\end{document}
+
+
