@@ -137,36 +137,60 @@ server <- function(input, output) {
                  0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893, 
                  0.652066, 0.785885, 0.830250, 0.846584)
     
+
+    # Extraer valores
+    a <- input$a 
+    m <- input$m
+    c <- input$c
+    n <- input$n
+    semilla <- input$seed
+    
+    numeros <<- runif(n)
+    print(numeros)
+    
+    # Checar que sean valores numéricos
+    if(is.numeric(a)==FALSE){
+      showModal(modalDialog(
+        title = "Error",
+        "Alguno de los valores introducidos es incorrecto, por favor verifique sus entradas."
+      ))
+      error <- 1
+    } else {
+      error <- 0
+    }
     
     ### Generador de valores de una v.a. con distribución uniforme
+    
     
     ### Monte Carlo
     
     ### Generador Congruencial Multiplicativo
-    
+  
     ### Generador Congruencial Mixto o Congruencial Lineal
     
     
-    
-    output$random_table <- DT::renderDataTable({data.frame("Valores" = numeros)})
-    output$hist_uniformidad <- renderPlot({
-      ggplot(data.frame("Valores" = numeros)) + geom_histogram(aes(x=Valores,y=..density..), 
-                                                                     alpha=0.7, 
-                                                                     breaks=seq(0, 1, 0.05), 
-                                                                     closed="left", 
-                                                                     color="white", 
-                                                                     fill="orange") + 
-        stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) 
+    if(error == 0){
+      output$random_table <- DT::renderDataTable({data.frame("Valores" = numeros)})
+      output$hist_uniformidad <- renderPlot({
+        ggplot(data.frame("Valores" = numeros)) + geom_histogram(aes(x=Valores,y=..density..), 
+                                                                 alpha=0.7, 
+                                                                 breaks=seq(0, 1, 0.05), 
+                                                                 closed="left", 
+                                                                 color="white", 
+                                                                 fill="orange") + 
+          stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) 
       })
-    output$download <- downloadHandler(filename = "aleatorios.csv",
-                                       content = function(file) {
-                                         write.csv(numeros, file)
-                                         # Cambiar línea anterior por línea siguiente si se prefiere sin índices
-                                         #write.csv(numeros_dt, file, row.names = FALSE)
-                                       })
-    shinyjs::show(id = "download")
-    shinyjs::show(id = "hist_uniformidad")
-  })
+      output$download <- downloadHandler(filename = "aleatorios.csv",
+                                         content = function(file) {
+                                           write.csv(numeros, file)
+                                           # Cambiar línea anterior por línea siguiente si se prefiere sin índices
+                                           #write.csv(numeros_dt, file, row.names = FALSE)
+                                         })
+      shinyjs::show(id = "download")
+      shinyjs::show(id = "hist_uniformidad")
+    }
+  }
+  )
   
   
   ### Pruebas de aleatoriedad y/o uniformidad #################################################
@@ -205,7 +229,6 @@ server <- function(input, output) {
     # Así, el estadístico queda:
     estadistico <- (k/n)*temp
     Y <- estadistico
-    
     # Ahora, necesitamos aplicar la prueba de hipótesis. Las hipótesis son:
     # H_0: La muestra proviene de una distribución uniforme.
     # H_a: La muestra no proviene de una distribución uniforme.
@@ -220,8 +243,7 @@ server <- function(input, output) {
     cuantil <- (k-1)*(1-(2/(9*(k-1)))+z*sqrt(2/(9*(k-1))))^(3)
     quantile_ChiSquared <- cuantil
     
-    p_value <- qchisq(p=1-alfa,df=k-1,lower.tail = FALSE)
-    
+    p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     # Rechazo por región
     if(estadistico > cuantil){
       rechazo_por_region <- 1
@@ -252,7 +274,7 @@ server <- function(input, output) {
   ###################################################
   ###################################################
   SerialTest <- function(numeros, alfa){
-    
+
     library(ggplot2)
     # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
     k <- 5
@@ -271,6 +293,7 @@ server <- function(input, output) {
     U1 <- num_2[1:(length(num_2)/2)]
     U2 <- num_2[((length(num_2)/2)+1):length(num_2)]
     
+    limits <- seq(from = 0, to = 1, length.out = k + 1)
     # Contar el número de observaciones que caen en la cuadrícula
     count <- matrix(0, k, k)
     for(i in 1:k){
@@ -297,15 +320,14 @@ server <- function(input, output) {
     }
     # El número de observaciones en cada cuadrante se encuentra en la matriz "count".
     count
-    
     # Calcular el número esperado de observaciones en cada cuadrante de la cuadrícula
     temp <- c(U1,U2)
-    expected <- matrix(length(temp)/(k^2), k, k)
-    
+    expected <- matrix((length(temp)/2)/(k^2), k, k)
+
     #Cálculo del estadístico
     estadistico <- ((k^(2))/(length(temp)))*sum((count-expected)^2)
     Y <- estadistico
-    
+
     # Grados de libertad
     df <- ((k^(2))-1)
     
@@ -314,7 +336,8 @@ server <- function(input, output) {
     quantile_SerialTest <- cuantil
     
     # Cálculo del valor p
-    p_value <- 1- pchisq(estadistico, df = df, lower.tail = FALSE)
+    p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
+    # p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     
     # Rechazo por región
     if(estadistico > cuantil){
@@ -338,6 +361,13 @@ server <- function(input, output) {
       #     la muestra no proviene de una distribución uniforme.")
     }
     
+    print("Rechazo por region")
+    print(rechazo_por_region)
+    
+    print("Rechazo por p value")
+    print(rechazo_por_pvalue)
+    
+    
     # Graficar los datos
     data <- data.frame(
       U1 <- U1,
@@ -348,7 +378,7 @@ server <- function(input, output) {
     limits <- seq(from = 0, to = 1, length.out = k + 1)
     
     graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
-    graph 
+    plot(graph) 
     
     return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue, graph))
   }
@@ -462,7 +492,34 @@ server <- function(input, output) {
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
-    }else{
+    } else if(input$pruebas=="Prueba de la Ji Cuadrada"){
+      prueba <- ChiSquaredTest(numeros, as.numeric(input$alpha))
+      estadistico <- round(as.numeric(prueba[1]), 2)
+      cuantil <- round(as.numeric(prueba[2]), 2)
+      pvalue <- round(as.numeric(prueba[3]), 2)
+      rechazo_por_region <- as.numeric(prueba[4])
+      rechazo_por_pvalue <- as.numeric(prueba[5])
+    } else if(input$pruebas=="Prueba Serial"){
+      prueba <- SerialTest(numeros, as.numeric(input$alpha))
+      estadistico <- round(as.numeric(prueba[1]), 2)
+      cuantil <- round(as.numeric(prueba[2]), 2)
+      pvalue <- round(as.numeric(prueba[3]), 2)
+      rechazo_por_region <- as.numeric(prueba[4])
+      rechazo_por_pvalue <- as.numeric(prueba[5])
+    } else if(input$pruebas=="Prueba de Kolmogorov-Smirnov"){
+      
+      
+    } else if(input$pruebas=="Prueba de las corridas"){
+      
+      
+    } else if(input$pruebas=="Correlación de atrasos"){
+      prueba <- CorrelationTest(numeros, as.numeric(input$alpha))
+      estadistico <- round(as.numeric(prueba[1]), 2)
+      cuantil <- round(as.numeric(prueba[2]), 2)
+      pvalue <- round(as.numeric(prueba[3]), 2)
+      rechazo_por_region <- as.numeric(prueba[4])
+      rechazo_por_pvalue <- as.numeric(prueba[5])
+    } else{
       #Quitar esto cuando ya esté todo
       pvalue <- 0.5
       rechazo_por_region <- 1
@@ -491,7 +548,10 @@ server <- function(input, output) {
           #Ponerlo si queremos que se muestren los valores del estadístico y el cuantil 
           #scale_x_continuous(breaks=c(-2,0,estadistico,cuantil,2))
         })
-      }
+    }
+    
+    k <- 5
+    d <- 2
     if(input$pruebas == "Prueba de las corridas" || input$pruebas == "Prueba de la Ji Cuadrada" || 
          input$pruebas == "Prueba Serial"){
       if(input$pruebas=="Prueba de las corridas"){
@@ -502,7 +562,7 @@ server <- function(input, output) {
         df <- k^d - 1
         }
       output$hist_distribucion <- renderPlot({
-        xtemp <- rchisq(n = 1000,df = df)
+        xtemp <- numeros
         ggplot(data.frame(x = xtemp), aes(xtemp)) +
           stat_function(fun = dchisq, args = list(df = df)) + 
           stat_function(fun = dchisq, 
@@ -513,6 +573,11 @@ server <- function(input, output) {
           geom_vline(xintercept = estadistico) 
         })
     }
+    if(input$pruebas == "Correlación de atrasos"){
+      
+    }
+    
+    
     if(rechazo_por_region == 1){
       output$text_region <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }else{

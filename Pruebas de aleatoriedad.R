@@ -523,5 +523,6 @@ prueba2 <- CvM(num, alfa)
 prueba3 <- PC(sec, alfa)
 
 
+pruebaxd <- runif(10000)
 
-
+ChiSquared(pruebaxd,0.05)
