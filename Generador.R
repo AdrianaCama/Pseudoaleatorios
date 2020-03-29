@@ -4,6 +4,23 @@ library(shinyjs)
 library(ggplot2)
 library(ggfortify)
 
+unif_generator <- function(n,min=0,max=1,seed=621,m=(2^31)-1,a=724938285,c=0){
+  size <- n
+  if(n == 1){
+    n <- 621*n
+  }
+  
+  res <- rep(0, n)
+  res[1] <- (a*seed+c)%%m
+  for(i in 2:n){
+    res[i] <- (a*res[i-1]+c)%%m
+  }
+  res <- res/m
+  
+  res <- min + res*(max-min)
+  res <- res[1:size]
+  return(res)
+}
 
 ui <- dashboardPage(
   # App title ----
@@ -53,14 +70,14 @@ ui <- dashboardPage(
                             min = 0,
                             value = 621
                             ),
-               radioButtons(inputId = "generador",
-                            label = "Elige un generador: ",
-                            choices = c( "Generador de valores de una v.a. con distribución 
-                                        uniforme", "Monte Carlo", 
-                                         "Generador Congruencial Multiplicativo", 
-                                        "Generador Congruencial Mixto o Congruencial Lineal"),
-                            selected = "Monte Carlo"
-               ),
+               # radioButtons(inputId = "generador",
+               #              label = "Elige un generador: ",
+               #              choices = c( "Generador de valores de una v.a. con distribución 
+               #                          uniforme", "Monte Carlo", 
+               #                           "Generador Congruencial Multiplicativo", 
+               #                          "Generador Congruencial Mixto o Congruencial Lineal"),
+               #              selected = "Monte Carlo"
+               # ),
                actionButton(inputId = "Button_go", label = "Generar")
               ),
              box(
@@ -133,9 +150,9 @@ server <- function(input, output) {
   ############################################################################################
   observeEvent(input$Button_go, {
     # Cambiar (Esto solo es para probar)
-    numeros <<- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474, 
-                 0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893, 
-                 0.652066, 0.785885, 0.830250, 0.846584)
+    # numeros <<- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474, 
+    #              0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893, 
+    #              0.652066, 0.785885, 0.830250, 0.846584)
     
 
     # Extraer valores
@@ -144,9 +161,6 @@ server <- function(input, output) {
     c <- input$c
     n <- input$n
     semilla <- input$seed
-    
-    numeros <<- runif(n)
-    print(numeros)
     
     # Checar que sean valores numéricos
     if(is.numeric(a)==FALSE){
@@ -157,16 +171,8 @@ server <- function(input, output) {
       error <- 1
     } else {
       error <- 0
+      numeros <<- unif_generator(n = n, seed = semilla, m = m, a = a, c = c)
     }
-    
-    ### Generador de valores de una v.a. con distribución uniforme
-    
-    
-    ### Monte Carlo
-    
-    ### Generador Congruencial Multiplicativo
-  
-    ### Generador Congruencial Mixto o Congruencial Lineal
     
     
     if(error == 0){
@@ -242,6 +248,16 @@ server <- function(input, output) {
     
     cuantil <- (k-1)*(1-(2/(9*(k-1)))+z*sqrt(2/(9*(k-1))))^(3)
     quantile_ChiSquared <- cuantil
+    
+    print("Cuantil")
+    print(cuantil)
+    
+    print("Estadístico")
+    print(estadistico)
+    
+    print("Cuantil")
+    print(cuantil)
+    
     
     p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     # Rechazo por región
@@ -389,10 +405,113 @@ server <- function(input, output) {
   # Prueba 3: Prueba de Kolmogorov-Smirnov  #########
   ###################################################
   ###################################################
-  #Falta aquí
-  
-  
-  
+  KS <- function(numeros, alpha) {
+    numeros_ordenados <- sort(numeros, decreasing=FALSE)
+    n <- length(numeros_ordenados)
+    empirica <- seq(1, n, 1) / n
+    
+    D_n <- max(abs(numeros_ordenados - empirica))
+    
+    if(alpha==0.2){
+      columna <- 2
+    } else if(alpha==0.1){
+      columna <- 3
+    } else if(alpha==0.05){
+      columna <- 4
+    } else if(alpha==0.025){
+      columna <- 5
+    } else if(alpha==0.01){
+      columna <- 6
+    }
+    
+    if(n>40){
+      if(alpha==0.2){
+        tabla_KS[41, 2] <- 1.07/sqrt(n)
+      }
+      if(alpha==0.1){
+        tabla_KS[41, 3] <- 1.22/sqrt(n)
+      }
+      if(alpha==0.05){
+        tabla_KS[41, 4] <- 1.36/sqrt(n)
+      }
+      if(alpha==0.025){
+        tabla_KS[41, 5] <- 1.52/sqrt(n)
+      }
+      if(alpha==0.01){
+        tabla_KS[41, 6] <- 1.63/sqrt(n)
+      }
+    }
+    
+    if(n<=40){
+      d_alpha <- tabla_KS[n, columna]
+    } else{
+      d_alpha <- tabla_KS[41, columna]
+    }
+    
+    i <- 1
+    fin <- 0
+    while(fin == 0){
+      if (tabla_KS[n, i]>D_n){
+        fin <- 1
+        if(i == 1){
+          p_value <- "VP>0.20"
+        }
+        if(i == 2){
+          p_value <- "0.10<VP<0.20"
+        }
+        if(i == 3){
+          p_value <- "0.05<VP<0.10"
+        }
+        if(i == 4){
+          p_value <- "0.02<VP<0.05"
+        }
+        if(i == 5){
+          p_value <- "0.01<VP<0.02"
+        }
+      } else if (tabla_KS[n, i]==D_n){
+        fin <- 1
+        if(i == 1){
+          p_value <- 0.2
+        }
+        if(i == 2){
+          p_value <- 0.1
+        }
+        if(i == 3){
+          p_value <- 0.05
+        }
+        if(i == 4){
+          p_value <- 0.02
+        }
+        if(i == 5){
+          p_value <- 0.01
+        }
+      }
+      i <- i + 1
+      if(i == 6){
+        fin <- 1
+        p_value <- "VP<0.01"
+      }
+    }
+    
+    D_n <- as.numeric(D_n)
+    d_alpha <- as.numeric(d_alpha)
+    
+    if(D_n> d_alpha){
+      rechazo_por_region <- 1
+    } else{
+      rechazo_por_region <- 0
+    }
+    
+    
+    if(p_value <= alpha || ((substr(p_value, nchar(p_value)-3, nchar(p_value)) <= alpha && i != 1) || i ==6)){
+      rechazo_por_pvalue <- 1
+    } else{
+      rechazo_por_pvalue <- 0
+    }
+    
+    
+    return(list(D_n, d_alpha, p_value, rechazo_por_region, rechazo_por_pvalue))
+  }
 
   # Prueba 4: Cramer-von Mises ######################
   ###################################################
@@ -428,7 +547,72 @@ server <- function(input, output) {
   # Prueba 5: Prueba de las corridas ################
   ###################################################
   ###################################################
-  #Falta aquí
+  PC<- function(secuencia, alpha){
+    a <- rbind(c(4529.4, 9044.9, 13568, 18091, 22615, 27892),
+               c(9044.9, 18097, 27139, 36187, 45234, 55789),
+               c(13568, 27139, 40721, 54281, 67852, 83685),
+               c(18091, 36187, 54281, 72414, 90470, 111580),
+               c(22615, 45234, 67852, 90470, 113262, 139476),
+               c(27892, 55789, 83685, 111580, 139476, 172860))
+    b <- c(1/6, 5/24, 11/120, 19/720, 29/5040, 1/840)
+    
+    n <- length(secuencia)
+    
+    
+    largo <- 1
+    r <- c(0, 0, 0, 0, 0, 0)
+    for(i in 2:n){
+      if(secuencia[i]>secuencia[i-1]){
+        largo <- largo + 1
+      } else{
+        r[largo] <- r[largo] + 1
+        largo <- 1
+      }
+    }
+    if (largo!=1){
+      r[largo] <- r[largo] + 1
+    } else{
+      r[1] <- r[1] + 1
+    }
+    
+    
+    suma <- 0
+    for(i in 1:6){
+      for(j in 1:6){
+        suma <- suma + a[i,j] * (r[i] - n*b[i]) * (r[j] - n*b[j])
+      }
+    }
+    R <- (1/n) * suma
+    
+    
+    if(n>=4000){
+      quantile_corridas <- qchisq(1-alpha)
+    } 
+    # Falta cuando n<4000 con un else
+    
+    
+    if(n>=4000){
+      p_value <- pchisq(R, 6)
+    } 
+    # Falta cuando n<4000 con un else
+    
+    
+    if(R > quantile_corridas){
+      rechazo_por_region <- 1
+    } else{
+      rechazo_por_region <- 0
+    }
+    
+    
+    if(p_value <= alpha){
+      rechazo_por_pvalue <- 1
+    } else{
+      rechazo_por_pvalue <- 0
+    }
+    
+    
+    return(list(R, quantile_corridas, p_value, rechazo_por_region, rechazo_por_pvalue))
+  }
   
   # Prueba  6: Correlación de atrasos  ##############
   ###################################################
@@ -507,11 +691,15 @@ server <- function(input, output) {
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba de Kolmogorov-Smirnov"){
-      
+      # Falta aquí
       
     } else if(input$pruebas=="Prueba de las corridas"){
-      
-      
+      prueba <- PC(numeros, as.numeric(input$alpha))
+      estadistico <- round(as.numeric(prueba[1]), 2)
+      cuantil <- round(as.numeric(prueba[2]), 2)
+      pvalue <- round(as.numeric(prueba[3]), 2)
+      rechazo_por_region <- as.numeric(prueba[4])
+      rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Correlación de atrasos"){
       prueba <- CorrelationTest(numeros, as.numeric(input$alpha))
       estadistico <- round(as.numeric(prueba[1]), 2)
@@ -520,14 +708,14 @@ server <- function(input, output) {
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else{
-      #Quitar esto cuando ya esté todo
-      pvalue <- 0.5
-      rechazo_por_region <- 1
-      rechazo_por_pvalue<- 1
-      cuantil <- 1
-      estadistico <- 0.5
-      k <- 3
-      d <- 1
+      # #Quitar esto cuando ya esté todo
+      # pvalue <- 0.5
+      # rechazo_por_region <- 1
+      # rechazo_por_pvalue<- 1
+      # cuantil <- 1
+      # estadistico <- 0.5
+      # k <- 3
+      # d <- 1
       }
     
     
