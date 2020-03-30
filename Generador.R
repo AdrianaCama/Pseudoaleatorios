@@ -44,6 +44,10 @@ ui <- dashboardPage(
                width = NULL,
                #solidHeader = TRUE,
                #status = "warning",
+               radioButtons(inputId = "Checkbox",
+                            label = "Números pseudoaleatorios",
+                            choices = c("Ingresar (archivo CSV)", "Generar"),
+                            selected = "Generar"),
                # Input: Numerics para ingresar valores ----
                numericInput(inputId = "a",
                             label = "a:",
