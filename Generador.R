@@ -44,6 +44,10 @@ ui <- dashboardPage(
                width = NULL,
                #solidHeader = TRUE,
                #status = "warning",
+               radioButtons(inputId = "Checkbox",
+                            label = "Números pseudoaleatorios",
+                            choices = c("Ingresar (archivo CSV)", "Generar"),
+                            selected = "Generar"),
                # Input: Numerics para ingresar valores ----
                numericInput(inputId = "a",
                             label = "a:",
@@ -406,6 +410,36 @@ server <- function(input, output) {
   ###################################################
   ###################################################
   KS <- function(numeros, alpha) {
+    tabla_KS <- data.frame("n" = c(1:40,">40"), "0.2" = c(0.900, 0.684, 0.565, 0.493, 0.447, 0.410, 
+                                                          0.381, 0.358, 0.339, 0.323, 0.308, 0.296, 
+                                                          0.285, 0.275, 0.266, 0.258, 0.250, 0.244, 
+                                                          0.237, 0.232, 0.226, 0.221, 0.216, 0.212,
+                                                          0.208, 0.204, 0.200, 0.197, 0.193, 0.190, 
+                                                          0.187, 0.184, 0.182, 0.179, 0.177, 0.174, 
+                                                          0.172, 0.170, 0.168, 0.165, "1.07/raiz(n)"), 
+                           "0.1" = c(0.950, 0.776, 0.636, 0.565, 0.509, 0.468, 0.436, 0.410, 0.387, 
+                                     0.369, 0.352, 0.338, 0.325, 0.314, 0.304, 0.295, 0.286, 0.279, 
+                                     0.271, 0.265, 0.259, 0.253, 0.247, 0.242, 0.238, 0.233, 0.229, 
+                                     0.225, 0.221, 0.218, 0.214, 0.211, 0.208, 0.205, 0.202, 0.199, 
+                                     0.196, 0.194, 0.191, 0.189, "1.22/raiz(n)"),
+                           "0.05" = c(0.975, 0.842, 0.780, 0.624, 0.563, 0.519, 0.483, 0.454, 0.430, 
+                                      0.409, 0.391, 0.375, 0.361, 0.349, 0.338, 0.327, 0.318, 0.309, 
+                                      0.301, 0.294, 0.287, 0.281, 0.275, 0.269, 0.264, 0.259, 0.254, 
+                                      0.250, 0.246, 0.242, 0.238, 0.234, 0.231, 0.227, 0.224, 0.221, 
+                                      0.218, 0.215, 0.213, 0.210, "1.36/raiz(n)"),
+                           "0.02" = c(0.990, 0.900, 0.785, 0.698, 0.627, 0.577, 0.538, 0.507, 0.480, 
+                                      0.457, 0.437, 0.419, 0.404, 0.390, 0.377, 0.366, 0.355, 0.346, 
+                                      0.337, 0.329, 0.321, 0.314, 0.307, 0.301, 0.295, 0.290, 0.284, 
+                                      0.279, 0.275, 0.270, 0.266, 0.262, 0.258, 0.254, 0.251, 0.247, 
+                                      0.244, 0.241, 0.238, 0.235, "1.52/raiz(n)"),
+                           "0.01" = c(0.995, 0.929, 0.829, 0.734, 0.669, 0.617, 0.576, 0.542, 0.513, 
+                                      0.489, 0.468, 0.449, 0.432, 0.418, 0.404, 0.392, 0.381, 0.371, 
+                                      0.361, 0.352, 0.344, 0.337, 0.330, 0.323, 0.317, 0.311, 0.305, 
+                                      0.300, 0.295, 0.290, 0.285, 0.281, 0.277, 0.273, 0.269, 0.265, 
+                                      0.262, 0.258, 0.255, 0.252, "1.63/raiz(n)"),
+                           stringsAsFactors = FALSE
+                           )
+    
     numeros_ordenados <- sort(numeros, decreasing=FALSE)
     n <- length(numeros_ordenados)
     empirica <- seq(1, n, 1) / n
@@ -450,48 +484,96 @@ server <- function(input, output) {
     
     i <- 1
     fin <- 0
+    opcion <- 0
     while(fin == 0){
-      if (tabla_KS[n, i]>D_n){
-        fin <- 1
-        if(i == 1){
-          p_value <- "VP>0.20"
+      if(n<= 40){
+        if (tabla_KS[n, i]>D_n){
+          fin <- 1
+          if(i == 1){
+            p_value <- "VP>0.20"
+          }
+          if(i == 2){
+            p_value <- "0.10<VP<0.20"
+          }
+          if(i == 3){
+            p_value <- "0.05<VP<0.10"
+          }
+          if(i == 4){
+            p_value <- "0.02<VP<0.05"
+          }
+          if(i == 5){
+            p_value <- "0.01<VP<0.02"
+          }
+          opcion <- 1
+        } else if (tabla_KS[n, i]==D_n){
+          fin <- 1
+          if(i == 1){
+            p_value <- 0.2
+          }
+          if(i == 2){
+            p_value <- 0.1
+          }
+          if(i == 3){
+            p_value <- 0.05
+          }
+          if(i == 4){
+            p_value <- 0.02
+          }
+          if(i == 5){
+            p_value <- 0.01
+          }
+          opcion <- 2
         }
-        if(i == 2){
-          p_value <- "0.10<VP<0.20"
+        i <- i + 1
+        if(i == 6){
+          fin <- 1
+          p_value <- "VP<0.01"
+          }
+        }else{
+          if (tabla_KS[41, i]>D_n){
+            fin <- 1
+            if(i == 1){
+              p_value <- "VP>0.20"
+            }
+            if(i == 2){
+              p_value <- "0.10<VP<0.20"
+            }
+            if(i == 3){
+              p_value <- "0.05<VP<0.10"
+            }
+            if(i == 4){
+              p_value <- "0.02<VP<0.05"
+            }
+            if(i == 5){
+              p_value <- "0.01<VP<0.02"
+            }
+            opcion <- 1
+          } else if (tabla_KS[41, i]==D_n){
+            fin <- 1
+            if(i == 1){
+              p_value <- 0.2
+            }
+            if(i == 2){
+              p_value <- 0.1
+            }
+            if(i == 3){
+              p_value <- 0.05
+            }
+            if(i == 4){
+              p_value <- 0.02
+            }
+            if(i == 5){
+              p_value <- 0.01
+            }
+            opcion <- 2
+          }
+          i <- i + 1
+          if(i == 6){
+            fin <- 1
+            p_value <- "VP<0.01"
+          }
         }
-        if(i == 3){
-          p_value <- "0.05<VP<0.10"
-        }
-        if(i == 4){
-          p_value <- "0.02<VP<0.05"
-        }
-        if(i == 5){
-          p_value <- "0.01<VP<0.02"
-        }
-      } else if (tabla_KS[n, i]==D_n){
-        fin <- 1
-        if(i == 1){
-          p_value <- 0.2
-        }
-        if(i == 2){
-          p_value <- 0.1
-        }
-        if(i == 3){
-          p_value <- 0.05
-        }
-        if(i == 4){
-          p_value <- 0.02
-        }
-        if(i == 5){
-          p_value <- 0.01
-        }
-      }
-      i <- i + 1
-      if(i == 6){
-        fin <- 1
-        p_value <- "VP<0.01"
-      }
-    }
+      } 
     
     D_n <- as.numeric(D_n)
     d_alpha <- as.numeric(d_alpha)
@@ -502,11 +584,19 @@ server <- function(input, output) {
       rechazo_por_region <- 0
     }
     
-    
-    if(p_value <= alpha || ((substr(p_value, nchar(p_value)-3, nchar(p_value)) <= alpha && i != 1) || i ==6)){
-      rechazo_por_pvalue <- 1
-    } else{
-      rechazo_por_pvalue <- 0
+    if(opcion == 1){
+      if((substr(p_value, nchar(p_value)-3, nchar(p_value)) <= alpha && i != 1) || i ==6){
+        rechazo_por_pvalue <- 1
+      } else{
+        rechazo_por_pvalue <- 0
+      }
+    }
+    if(opcion == 2){
+      if(p_value <= alpha){
+        rechazo_por_pvalue <- 1
+      } else{
+        rechazo_por_pvalue <- 0
+      }
     }
     
     
@@ -586,13 +676,13 @@ server <- function(input, output) {
     
     
     if(n>=4000){
-      quantile_corridas <- qchisq(1-alpha)
+      quantile_corridas <- qchisq(1-alpha, 6)
     } 
     # Falta cuando n<4000 con un else
     
     
     if(n>=4000){
-      p_value <- pchisq(R, 6)
+      p_value <- pchisq(R, 6, lower.tail = FALSE)
     } 
     # Falta cuando n<4000 con un else
     
@@ -691,7 +781,12 @@ server <- function(input, output) {
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba de Kolmogorov-Smirnov"){
-      # Falta aquí
+      prueba <- KS(numeros, as.numeric(input$alpha))
+      estadistico <- round(as.numeric(prueba[1]), 2)
+      cuantil <- round(as.numeric(prueba[2]), 2)
+      pvalue <- toString(prueba[3])
+      rechazo_por_region <- as.numeric(prueba[4])
+      rechazo_por_pvalue <- as.numeric(prueba[5])
       
     } else if(input$pruebas=="Prueba de las corridas"){
       prueba <- PC(numeros, as.numeric(input$alpha))
@@ -707,16 +802,7 @@ server <- function(input, output) {
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
-    } else{
-      # #Quitar esto cuando ya esté todo
-      # pvalue <- 0.5
-      # rechazo_por_region <- 1
-      # rechazo_por_pvalue<- 1
-      # cuantil <- 1
-      # estadistico <- 0.5
-      # k <- 3
-      # d <- 1
-      }
+    }
     
     
     ### Resultados de la región de rechazo ###
@@ -736,6 +822,7 @@ server <- function(input, output) {
           #Ponerlo si queremos que se muestren los valores del estadístico y el cuantil 
           #scale_x_continuous(breaks=c(-2,0,estadistico,cuantil,2))
         })
+      shinyjs::show(id = "hist_distribucion")
     }
     
     k <- 5
@@ -750,7 +837,7 @@ server <- function(input, output) {
         df <- k^d - 1
         }
       output$hist_distribucion <- renderPlot({
-        xtemp <- numeros
+        xtemp <- rchisq(10000, df)
         ggplot(data.frame(x = xtemp), aes(xtemp)) +
           stat_function(fun = dchisq, args = list(df = df)) + 
           stat_function(fun = dchisq, 
@@ -760,9 +847,10 @@ server <- function(input, output) {
                         fill = "orange") +
           geom_vline(xintercept = estadistico) 
         })
+      shinyjs::show(id = "hist_distribucion")
     }
-    if(input$pruebas == "Correlación de atrasos"){
-      
+    if(input$pruebas == "Prueba de Kolmogorov-Smirnov"){
+      shinyjs::hide(id = "hist_distribucion")
     }
     
     
@@ -787,9 +875,6 @@ server <- function(input, output) {
     }else{
       output$text_pvalue <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }
-    
-    
-    shinyjs::show(id = "hist_distribucion")
   })
   
 }
