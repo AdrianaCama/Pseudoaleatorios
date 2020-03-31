@@ -23,10 +23,11 @@ for (i in 1:dim(matrix)[1]) {
   t <- toString(matrix[i,2])
   estatus_servidor <-toString(matrix[i,3])
   numero_cola <- toString(matrix[i,4])
-  tiempos_llegada_1 <- toString(matrix[i,13])
-  tiempos_llegada_2 <- toString(matrix[i,14])
-  tiempos_llegada_3 <- toString(matrix[i,15])
-  tiempos_llegada_4 <- toString(matrix[i,16])
+  servidor <- toString(matrix[i,13])
+  tiempos_llegada_1 <- toString(matrix[i,14])
+  tiempos_llegada_2 <- toString(matrix[i,15])
+  tiempos_llegada_3 <- toString(matrix[i,16])
+  tiempos_llegada_4 <- toString(matrix[i,17])
   tiempo_ultimo_evento <- toString(matrix[i,5])
   hora <- toString(matrix[i,6])
   A <- toString(matrix[i,7])
@@ -56,10 +57,10 @@ for (i in 1:dim(matrix)[1]) {
   
   # Jiji 7
   
-  if(estatus_servidor == "0"){
+  if(servidor == "0"){
     cat("&  &  &  &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_4,"} &  &  &  &  & \\multicolumn{1}{l}{} &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l}{} &  \\\\ \\cline{9-9} \\cline{14-17}", sep = "");
   } else{
-    cat("& ACTIVO &  &  &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_4,"} &  &  &  &  & \\multicolumn{1}{l}{} &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l}{} &  \\\\ \\cline{9-9} \\cline{14-17}", sep = "");
+    cat("& \\tikz \\node[draw,circle]{",servidor,"} &  &  &  &  &  & \\multicolumn{1}{l|}{} & \\multicolumn{1}{c|}{",tiempos_llegada_4,"} &  &  &  &  & \\multicolumn{1}{l}{} &  & \\multicolumn{1}{l}{} & \\multicolumn{1}{l}{} &  \\\\ \\cline{9-9} \\cline{14-17}", sep = "");
   }
   
   # Jiji 12, Jiji 13, Jiji 14, Jiji 15
@@ -96,7 +97,7 @@ for (i in 1:dim(matrix)[1]) {
   cat("}");
   cat("\\end{table}");
   
-  if((i%%4)==0){
+  if((i%%3)==0){
     cat('\\clearpage\n')
   }
   

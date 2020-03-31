@@ -1045,7 +1045,7 @@ server <- function(input, output) {
       ocupado=c()
       libre=c()
       total=length(tiempo)
-      matrizresultados= matrix(0:0,1,12)
+      matrizresultados= matrix(0:0,1,13)
       matrizfila <- c()
       
       matrizresultados
@@ -1144,21 +1144,13 @@ server <- function(input, output) {
             eventoanterior<-tiempo[i-1]
           }
           
-          eventoanterior
-          
           hora<-tiempo[i]
           areaqt <- areaqt+qt*(ultimoevento-eventoanterior)
           areabt <- areabt+bt*(ultimoevento-eventoanterior)
-          
-          
-          hora 
-          areaqt
+
           
           ###################################################### 
           #Matriz resultados
-          
-          
-          
           if (length(tiemposfila)==0){
             matrizfilavacio=matrix(c(0,0,0,0),1,4)
             matrizfila=rbind(matrizfila,matrizfilavacio)
@@ -1176,12 +1168,28 @@ server <- function(input, output) {
             matrizfila=rbind(matrizfila,matrizfilavacio)
           }
           
-          matrizfila 
-          matrizfilavacio
-          
-          cola
-          matrizfila
-          matriz=matrix(c(evento,tiempo[i],estatus,cola,ultimoevento,hora,A,D,clientes,retrasototal,areaqt,areabt),1,12)
+        
+          if (evento=="Inicio"){
+            servidor <- 0
+          } else if (evento =="Llegada"){
+            if(cola == 0){
+              servidor <- tiempo[i]
+              servidor_2 <- matrizfila[1,1]
+            } else {
+              servidor <- servidor
+              servidor_2 <- matrizfila[1,1]
+            }
+          } else if (evento == "Salida"){
+            if(cola == 0){
+              servidor <- 0
+              servidor_2 <- 0
+            } else {
+              servidor <- matrizfila[1,1]
+              servidor_2 <- matrizfila[1,2]
+            }
+          }
+
+          matriz=matrix(c(evento,tiempo[i],estatus,cola,ultimoevento,hora,A,D,clientes,retrasototal,areaqt,areabt,servidor),1,13)
           matrizresultados=rbind(matrizresultados,matriz)
           #matrizresultados=cbind(matrizresultados,matrizfila)
           
@@ -1214,7 +1222,6 @@ server <- function(input, output) {
           
           
         }
-        print(paste("Se atendio",i))
       }
       
       ##########################################################################
@@ -1340,7 +1347,7 @@ server <- function(input, output) {
       # }
       
       matrizresultados <- matrizresultados[-1,]
-      colnames(matrizresultados) <- c('Evento','Tiempo','Estatus','Cola','Último Evento','Hora','A','D','Clientes','Retraso','Área Q(t)','Área B(t)','1ro','2do','3ro','4to')
+      colnames(matrizresultados) <- c('Evento','Tiempo','Estatus','Cola','Último Evento','Hora','A','D','Clientes','Retraso','Área Q(t)','Área B(t)','Servidor','1ro','2do','3ro','4to')
       
       
       
@@ -1381,9 +1388,9 @@ server <- function(input, output) {
       colnames(proportion_table) <- c("Tamaño de cola","Proporción")
       
       
-      
-      print(proporcion_cola_i)
-      print(hora)
+      print("Finalmente")
+      print(matrizresultados)
+
       
       #var1 <- paste(unique(as.numeric(matrizresultados[,4])),proporcion_cola_i,sep = ":")
       
