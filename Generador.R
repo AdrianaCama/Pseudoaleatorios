@@ -46,8 +46,9 @@ ui <- dashboardPage(
                #status = "warning",
                radioButtons(inputId = "Checkbox",
                             label = "Números pseudoaleatorios",
-                            choices = c("Ingresar (archivo CSV)", "Generar"),
-                            selected = "Generar"),
+                            choices = c("Generar con función de R", 
+                                        "Generar con función programada"),
+                            selected = "Generar con función programada"),
                # Input: Numerics para ingresar valores ----
                numericInput(inputId = "a",
                             label = "a:",
@@ -66,7 +67,7 @@ ui <- dashboardPage(
                             ),
                numericInput(inputId = "n",
                             label = "n:",
-                            min = 0,
+                            min = 4000,
                             value = 10000
                             ),
                numericInput(inputId = "seed",
@@ -175,7 +176,11 @@ server <- function(input, output) {
       error <- 1
     } else {
       error <- 0
-      numeros <<- unif_generator(n = n, seed = semilla, m = m, a = a, c = c)
+      if (input$Checkbox == "Generar con función programada"){
+        numeros <<- unif_generator(n = n, seed = semilla, m = m, a = a, c = c)
+      } else if(input$Checkbox == "Generar con función de R"){
+        numeros <<- runif(n = n, 0, 1)
+      } 
     }
     
     
@@ -266,7 +271,7 @@ server <- function(input, output) {
     
     p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     # Rechazo por región
-    if(estadistico > cuantil){
+    if(estadistico >= cuantil){
       rechazo_por_region <- 1
       # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
       #     la muestra no proviene de una distribución uniforme.")
@@ -370,7 +375,7 @@ server <- function(input, output) {
     # p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     
     # Rechazo por región
-    if(estadistico > cuantil){
+    if(estadistico >= cuantil){
       rechazo_por_region <- 1
       # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
       #     la muestra no proviene de una distribución uniforme.")
@@ -492,93 +497,93 @@ server <- function(input, output) {
       d_alpha <- tabla_KS[41, columna]
     }
     
-    i <- 1
+    i <- 2
     fin <- 0
     opcion <- 0
     while(fin == 0){
       if(n<= 40){
-        if (tabla_KS[n, i]>D_n){
+        if (tabla_KS[n, i] > D_n){
           fin <- 1
-          if(i == 1){
+          if(i == 2){
             p_value <- "VP>0.20"
           }
-          if(i == 2){
+          if(i == 3){
             p_value <- "0.10<VP<0.20"
           }
-          if(i == 3){
+          if(i == 4){
             p_value <- "0.05<VP<0.10"
           }
-          if(i == 4){
+          if(i == 5){
             p_value <- "0.02<VP<0.05"
           }
-          if(i == 5){
+          if(i == 6){
             p_value <- "0.01<VP<0.02"
           }
           opcion <- 1
-        } else if (tabla_KS[n, i]==D_n){
+        } else if (tabla_KS[n, i] == D_n){
           fin <- 1
-          if(i == 1){
+          if(i == 2){
             p_value <- 0.2
           }
-          if(i == 2){
+          if(i == 3){
             p_value <- 0.1
           }
-          if(i == 3){
+          if(i == 4){
             p_value <- 0.05
           }
-          if(i == 4){
+          if(i == 5){
             p_value <- 0.02
           }
-          if(i == 5){
+          if(i == 6){
             p_value <- 0.01
           }
           opcion <- 2
         }
         i <- i + 1
-        if(i == 6){
+        if(i == 7){
           fin <- 1
           p_value <- "VP<0.01"
           }
         }else{
-          if (tabla_KS[41, i]>D_n){
+          if (tabla_KS[41, i] > D_n){
             fin <- 1
-            if(i == 1){
+            if(i == 2){
               p_value <- "VP>0.20"
             }
-            if(i == 2){
+            if(i == 3){
               p_value <- "0.10<VP<0.20"
             }
-            if(i == 3){
+            if(i == 4){
               p_value <- "0.05<VP<0.10"
             }
-            if(i == 4){
+            if(i == 5){
               p_value <- "0.02<VP<0.05"
             }
-            if(i == 5){
+            if(i == 6){
               p_value <- "0.01<VP<0.02"
             }
             opcion <- 1
-          } else if (tabla_KS[41, i]==D_n){
+          } else if (tabla_KS[41, i] == D_n){
             fin <- 1
-            if(i == 1){
+            if(i == 2){
               p_value <- 0.2
             }
-            if(i == 2){
+            if(i == 3){
               p_value <- 0.1
             }
-            if(i == 3){
+            if(i == 4){
               p_value <- 0.05
             }
-            if(i == 4){
+            if(i == 5){
               p_value <- 0.02
             }
-            if(i == 5){
+            if(i == 6){
               p_value <- 0.01
             }
             opcion <- 2
           }
           i <- i + 1
-          if(i == 6){
+          if(i == 7){
             fin <- 1
             p_value <- "VP<0.01"
           }
@@ -588,14 +593,14 @@ server <- function(input, output) {
     D_n <- as.numeric(D_n)
     d_alpha <- as.numeric(d_alpha)
     
-    if(D_n> d_alpha){
+    if(D_n >= d_alpha){
       rechazo_por_region <- 1
     } else{
       rechazo_por_region <- 0
     }
     
     if(opcion == 1){
-      if((substr(p_value, nchar(p_value)-3, nchar(p_value)) <= alpha && i != 1) || i ==6){
+      if((substr(p_value, nchar(p_value)-3, nchar(p_value)) <= alpha && i != 2) || i == 7){
         rechazo_por_pvalue <- 1
       } else{
         rechazo_por_pvalue <- 0
@@ -617,27 +622,165 @@ server <- function(input, output) {
   ###################################################
   ###################################################
   CvM <- function(numeros, alpha){
+    tabla_CVM <- data.frame("n" = c(2:10,20,50,200,1000,"Valores de n grandes"),
+                            "0.99" = c(0.55052,0.63976,0.67017,0.68352,0.69443,0.70154,0.70912,0.71283,0.71582,
+                                       0.72948,0.73784,0.74205,0.74318,0.74346),
+                            "0.975" = c(0.48897,0.53316,0.54200,0.55056,0.55572,0.55935,0.56327,0.56513,0.56663,
+                                        0.57352,0.57775,0.57990,0.58047,0.58061),
+                            "0.95"  = c(0.42482,0.43938,0.44199,0.44697,0.44911,0.45100,0.45285,0.45377,0.45450,
+                                        0.45788,0.45996,0.46101,0.46129,0.46136),
+                            "0.90"  = c(0.34346,0.33786,0.34183,0.34238,0.34352,0.34397,0.34462,0.34491,0.34514,
+                                        0.34621,0.34686,0.34719,0.34728,0.34730),
+                            "0.85"  = c(0.28853,0.27963,0.28337,0.28305,0.28331,0.28345,0.28358,0.28364,0.28368,
+                                        0.28387,0.28398,0.28404,0.28406,0.28406),
+                            "0.80"  = c(0.24743,0.24169,0.24260,0.24236,0.24198,0.24197,0.24187,0.24180,0.24175,
+                                        0.24150,0.24134,0.24126,0.24124,0.24124),
+                            "0.75"  = c(0.21521,0.21339,0.21173,0.21165,0.21110,0.21087,0.21066,0.21052,0.21041,
+                                        0.20990,0.20960,0.20944,0.20940,0.20939),
+                            "0.50"  = c(0.12659,0.12542,0.12405,0.12252,0.12200,0.12158,0.12113,0.12088,0.12069,
+                                        0.11979,0.11924,0.11897,0.11890,0.11888),
+                            "0.25"  = c(0.08145,0.07683,0.07494,0.07427,0.07352,0.07297,0.07254,0.07228,0.07208,
+                                        0.07117,0.07062,0.07035,0.07027,0.07026),
+                            "0.20"  = c(0.07351,0.06886,0.06681,0.06611,0.06548,0.06492,0.06448,0.06423,0.06403,
+                                        0.06312,0.06258,0.06231,0.06224,0.06222),
+                            "0.15"  = c(0.06554,0.06092,0.05895,0.05799,0.05747,0.05697,0.05650,0.05625,0.05605,
+                                        0.05515,0.05462,0.05435,0.05428,0.05426),
+                            "0.10"  = c(0.05758,0.05287,0.05093,0.04970,0.04910,0.04869,0.04823,0.04798,0.04778,
+                                        0.04689,0.04636,0.04610,0.04603,0.04601),
+                            stringsAsFactors = FALSE)
     numeros_ordenados <- sort(numeros, decreasing=FALSE)
     N <- length(numeros_ordenados)
     empirica <- (2*seq(1, N, 1) - 1)/ (2*N)
     
     Y <- (1 / (12*N)) + sum((numeros_ordenados - empirica)^2)
-    quantile_CvM <- qnorm(1-alpha)
     
-    p_value <- pnorm(Y)
-
-    
-    if(Y > quantile_CvM){
-      rechazo_por_region <- 1
-    } else{
-      rechazo_por_region <- 0
+    if(alpha==0.2){
+      quantile_CvM <- tabla_CVM[14,7]
+    } else if(alpha==0.1){
+      quantile_CvM <- tabla_CVM[14,5]
+    } else if(alpha==0.05){
+      quantile_CvM <- tabla_CVM[14,4]
+    } else if(alpha==0.025){
+      quantile_CvM <- tabla_CVM[14,3]
+    } else if(alpha==0.01){
+      quantile_CvM <- tabla_CVM[14,2]
     }
     
     
-    if(p_value <= alpha){
-      rechazo_por_pvalue <- 1
-    } else{
-      rechazo_por_pvalue <- 0
+    i <- 13
+    fin <- 0
+    opcion <- 0
+    while(fin == 0){
+      print(tabla_CVM[14, i])
+        if (tabla_CVM[14, i]>Y){
+          fin <- 1
+          if(i == 13){
+            p_value <- "VP>0.90"
+          }
+          if(i == 12){
+            p_value <- "0.85<VP<0.90"
+          }
+          if(i == 11){
+            p_value <- "0.80<VP<0.85"
+          }
+          if(i == 10){
+            p_value <- "0.75<VP<0.80"
+          }
+          if(i == 9){
+            p_value <- "0.50<VP<0.75"
+          }
+          if(i == 8){
+            p_value <- "0.25<VP<0.50"
+          }
+          if(i == 7){
+            p_value <- "0.20<VP<0.25"
+          }
+          if(i == 6){
+            p_value <- "0.15<VP<0.20"
+          }
+          if(i == 5){
+            p_value <- "0.10<VP<0.15"
+          }
+          if(i == 4){
+            p_value <- "0.05<VP<0.10"
+          }
+          if(i == 3){
+            p_value <- ".025<VP<0.05"
+          }
+          if(i == 2){
+            p_value <- "0.01<VP<.025"
+          }
+          opcion <- 1
+        }
+         else if (tabla_CVM[14, i]==Y){
+          fin <- 1
+          if(i == 13){
+            p_value <- 0.90
+          }
+          if(i == 12){
+            p_value <- 0.85
+          }
+          if(i == 11){
+            p_value <- 0.80
+          }
+          if(i == 10){
+            p_value <- 0.75
+          }
+          if(i == 9){
+            p_value <- 0.50
+          }
+          if(i == 8){
+            p_value <- 0.25
+          }
+          if(i == 7){
+            p_value <- 0.20
+          }
+          if(i == 6){
+            p_value <- 0.15
+          }
+          if(i == 5){
+            p_value <- 0.10
+          }
+          if(i == 4){
+            p_value <- 0.05
+          }
+          if(i == 3){
+            p_value <- 0.025
+          }
+          if(i == 2){
+            p_value <- 0.01
+          }
+          opcion <- 2
+        }
+        i <- i - 1
+        if(i == 1){
+          fin <- 1
+          p_value <- "VP<0.01"
+        }
+    } 
+  
+    
+
+    if(Y < quantile_CvM){
+      rechazo_por_region <- 0
+      } else{
+        rechazo_por_region <- 1
+      }
+    
+    
+    if(opcion == 1){
+      if((substr(p_value, nchar(p_value)-3, nchar(p_value)) <= alpha && i != 13) || i == 1){
+        rechazo_por_pvalue <- 1
+      } else{
+        rechazo_por_pvalue <- 0
+      }
+    }
+    if(opcion == 2){
+      if(p_value <= alpha){
+        rechazo_por_pvalue <- 1
+      } else{
+        rechazo_por_pvalue <- 0
+      }
     }
     
     return(list(Y, quantile_CvM, p_value, rechazo_por_region, rechazo_por_pvalue))
@@ -697,7 +840,7 @@ server <- function(input, output) {
     # Falta cuando n<4000 con un else
     
     
-    if(R > quantile_corridas){
+    if(R >= quantile_corridas){
       rechazo_por_region <- 1
     } else{
       rechazo_por_region <- 0
@@ -745,7 +888,7 @@ server <- function(input, output) {
     
     p_value <- 2*pnorm(0.8641, lower.tail = FALSE)
     
-    if(abs(A) > quantile_CorrelationTest){
+    if(abs(A) >= quantile_CorrelationTest){
       rechazo_por_region <- 1
     } else{
       rechazo_por_region <- 0
@@ -773,7 +916,7 @@ server <- function(input, output) {
       prueba <- CvM(numeros, as.numeric(input$alpha))
       estadistico <- round(as.numeric(prueba[1]), 2)
       cuantil <- round(as.numeric(prueba[2]), 2)
-      pvalue <- round(as.numeric(prueba[3]), 2)
+      pvalue <- toString(prueba[3])
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba de la Ji Cuadrada"){
@@ -817,7 +960,7 @@ server <- function(input, output) {
     
     ### Resultados de la región de rechazo ###
     ##########################################
-    if(input$pruebas == "Prueba de Cramer-von Mises"  || input$pruebas == "Correlación de atrasos"){
+    if(input$pruebas == "Correlación de atrasos"){
       output$hist_distribucion <- renderPlot({
         ggplot(data.frame(x = c(-3, 3)), aes(x)) +
           stat_function(fun = dnorm, args = list(mean = 0, sd = 1)) + 
@@ -859,7 +1002,7 @@ server <- function(input, output) {
         })
       shinyjs::show(id = "hist_distribucion")
     }
-    if(input$pruebas == "Prueba de Kolmogorov-Smirnov"){
+    if(input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
       shinyjs::hide(id = "hist_distribucion")
     }
     
