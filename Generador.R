@@ -563,6 +563,7 @@ server <- function(input, output) {
         if(i == 7){
           fin <- 1
           p_value <- "VP<0.01"
+          opcion <- 1
           }
         }else{
           if (tabla_KS[41, i] > D_n){
@@ -606,10 +607,10 @@ server <- function(input, output) {
           if(i == 7){
             fin <- 1
             p_value <- "VP<0.01"
+            opcion <- 1
           }
         }
-      } 
-    
+    } 
     D_n <- as.numeric(D_n)
     d_alpha <- as.numeric(d_alpha)
     
