@@ -658,14 +658,14 @@ server <- function(input, output) {
 
         ggplot() + 
           geom_step(data=events1, mapping=aes(x=x, y=y, color = "black"), alpha = 1) +
-          geom_step(data=events2, mapping=aes(x=x, y=y, color = "blue"), linetype=3, alpha = 0.7) +
-          geom_step(data=events3, mapping=aes(x=x, y=y, color = "red"), linetype=4, alpha = 0.5) +
+          geom_step(data=events2, mapping=aes(x=x, y=y, color = "red"), linetype=3, alpha = 0.7) +
+          geom_step(data=events3, mapping=aes(x=x, y=y, color = "blue"), linetype=4, alpha = 0.5) +
           labs(
             x = "Mes",
             y = "Nivel de inventario"
             #color = "Cylinders"
           ) +
-          scale_color_discrete(name = "Inventario", labels = c("I", "I+", "I-"))+
+          scale_color_manual(values = c("black", "red", "blue"), name = "Inventario", labels = c("I", "I+", "I-"))+
           theme(legend.position=c(0.95, 0.95),legend.justification = c("right", "top"))
       })
       
