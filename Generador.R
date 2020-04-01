@@ -100,6 +100,15 @@ ui <- dashboardPage(
                            label = "Selecciona el nivel de significancia ",
                            choices = c(0.01, 0.025, 0.05, 0.1),
                            selected = 0.05),
+               selectInput(inputId = "atrasos",
+                           label = "Número de atrasos",
+                           choices = c(1, 2, 3, 4, 5),
+                           selected = 1),
+               numericInput(inputId = "intervalos",
+                            label = "Número de intervalos:",
+                            min = 1,
+                            max = 1000,
+                            value = 100),
                # numericInput(inputId = "intervals",
                #              label = "Número de intervalos:",
                #              min = 2,
@@ -324,14 +333,19 @@ server <- function(input, output) {
   # Prueba 2: "Prueba Serial"########################
   ###################################################
   ###################################################
+  
+  
+  
   SerialTest <- function(numeros, alfa){
     
     
-    numeros <- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474,
-                 0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893,
-                 0.652066, 0.785885, 0.830250, 0.846584)
+    #numeros <- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474,
+    #             0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893,
+    #             0.652066, 0.785885, 0.830250, 0.846584)
     
-    numeros <- runif(10000)
+    #numeros <- runif(10000)
+    
+    #numeros <- unif_generator(10000)
     
     library(ggplot2)
     # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
@@ -881,8 +895,11 @@ server <- function(input, output) {
   ###################################################
   CorrelationTest <- function(numeros,alfa){
     # Obtener parámetros
+    numeros <- unif_generator(10000)
     
     n <- length(numeros)
+    
+    # n debe ser al menos 2*atrasos + 1
     
     # Número de atrasos
     atrasos <- 3
@@ -893,7 +910,7 @@ server <- function(input, output) {
     
     lag <- temp[-1]
     normal <- temp[-length(temp)]
-    
+
     lag <- lag[1:h]
     normal <- normal[1:h]
     
@@ -924,11 +941,22 @@ server <- function(input, output) {
     
   }
   
+  # Deshabilitar opciones de acuerdo a lo que el usuario escoja
+  observeEvent(input$pruebas, {
+    if(input$pruebas == "Prueba de la Ji Cuadrada" || input$pruebas == "Prueba Serial"){
+      shinyjs::hide(id = "atrasos")
+      shinyjs::show(id = "intervalos")
+    } else if(input$pruebas == "Correlación de atrasos"){
+      shinyjs::hide(id = "intervalos")
+      shinyjs::show(id = "atrasos")
+    } else {
+      shinyjs::hide(id = "intervalos")
+      shinyjs::hide(id = "atrasos")
+    }
+  }
+  )
   
-  
-  
-  
-  
+  # Acciones al presionar el botón "Evaluar"
   observeEvent(input$Button_evaluate, {
     #Codigo de las pruebas 
     if(input$pruebas=="Prueba de Cramer-von Mises"){
