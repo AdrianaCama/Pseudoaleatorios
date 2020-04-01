@@ -220,6 +220,7 @@ server <- function(input, output) {
     # PENDIENTE: Revisar si la k es establecida o el usuario la especifica.
     ############################################################################################
     k <- 5
+    numeros
     n <- length(numeros)
     
     # f es un vector que contiene las f_j. f_j es el número de observaciones en la muestra que se 
@@ -252,7 +253,7 @@ server <- function(input, output) {
     ##############################################################################################
     # Prueba de hipótesis con aproximación
     
-    
+    estadistico
     z <- qnorm(p = 1-alfa)
     
     cuantil <- (k-1)*(1-(2/(9*(k-1)))+z*sqrt(2/(9*(k-1))))^(3)
@@ -299,6 +300,13 @@ server <- function(input, output) {
   ###################################################
   ###################################################
   SerialTest <- function(numeros, alfa){
+    
+    
+    numeros <- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474,
+                 0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893,
+                 0.652066, 0.785885, 0.830250, 0.846584)
+    
+    numeros <- runif(10000)
     
     library(ggplot2)
     # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
@@ -358,6 +366,8 @@ server <- function(input, output) {
     
     # Cálculo del cuantil
     cuantil <- qchisq(p=1-alfa,df=df,lower.tail = TRUE)
+    aproximación <- ((k^2)-1)*(1-(2/(9*((k^2)-1)))+z*sqrt(2/(9*((k^2)-1))))^(3)
+    
     quantile_SerialTest <- cuantil
     
     # Cálculo del valor p
