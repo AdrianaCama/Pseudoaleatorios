@@ -746,6 +746,7 @@ server <- function(input, output) {
         if(i == 1){
           fin <- 1
           p_value <- "VP<0.01"
+          opcion <- 1
         }
     } 
   
