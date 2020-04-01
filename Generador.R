@@ -270,7 +270,7 @@ server <- function(input, output) {
     
     p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     # Rechazo por región
-    if(estadistico > cuantil){
+    if(estadistico >= cuantil){
       rechazo_por_region <- 1
       # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
       #     la muestra no proviene de una distribución uniforme.")
@@ -365,7 +365,7 @@ server <- function(input, output) {
     # p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     
     # Rechazo por región
-    if(estadistico > cuantil){
+    if(estadistico >= cuantil){
       rechazo_por_region <- 1
       # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
       #     la muestra no proviene de una distribución uniforme.")
@@ -492,7 +492,7 @@ server <- function(input, output) {
     opcion <- 0
     while(fin == 0){
       if(n<= 40){
-        if (tabla_KS[n, i]>D_n){
+        if (tabla_KS[n, i] > D_n){
           fin <- 1
           if(i == 2){
             p_value <- "VP>0.20"
@@ -510,7 +510,7 @@ server <- function(input, output) {
             p_value <- "0.01<VP<0.02"
           }
           opcion <- 1
-        } else if (tabla_KS[n, i]==D_n){
+        } else if (tabla_KS[n, i] == D_n){
           fin <- 1
           if(i == 2){
             p_value <- 0.2
@@ -535,7 +535,7 @@ server <- function(input, output) {
           p_value <- "VP<0.01"
           }
         }else{
-          if (tabla_KS[41, i]>D_n){
+          if (tabla_KS[41, i] > D_n){
             fin <- 1
             if(i == 2){
               p_value <- "VP>0.20"
@@ -553,7 +553,7 @@ server <- function(input, output) {
               p_value <- "0.01<VP<0.02"
             }
             opcion <- 1
-          } else if (tabla_KS[41, i]==D_n){
+          } else if (tabla_KS[41, i] == D_n){
             fin <- 1
             if(i == 2){
               p_value <- 0.2
@@ -583,7 +583,7 @@ server <- function(input, output) {
     D_n <- as.numeric(D_n)
     d_alpha <- as.numeric(d_alpha)
     
-    if(D_n> d_alpha){
+    if(D_n >= d_alpha){
       rechazo_por_region <- 1
     } else{
       rechazo_por_region <- 0
@@ -830,7 +830,7 @@ server <- function(input, output) {
     # Falta cuando n<4000 con un else
     
     
-    if(R > quantile_corridas){
+    if(R >= quantile_corridas){
       rechazo_por_region <- 1
     } else{
       rechazo_por_region <- 0
@@ -878,7 +878,7 @@ server <- function(input, output) {
     
     p_value <- 2*pnorm(0.8641, lower.tail = FALSE)
     
-    if(abs(A) > quantile_CorrelationTest){
+    if(abs(A) >= quantile_CorrelationTest){
       rechazo_por_region <- 1
     } else{
       rechazo_por_region <- 0
