@@ -854,16 +854,8 @@ server <- function(input, output) {
     R <- (1/n) * suma
     
     
-    if(n>=4000){
-      quantile_corridas <- qchisq(1-alpha, 6)
-    } 
-    # Falta cuando n<4000 con un else
-    
-    
-    if(n>=4000){
-      p_value <- pchisq(R, 6, lower.tail = FALSE)
-    } 
-    # Falta cuando n<4000 con un else
+    quantile_corridas <- qchisq(1-alpha, 6)
+    p_value <- pchisq(R, 6, lower.tail = FALSE)
     
     
     if(R >= quantile_corridas){
@@ -945,6 +937,15 @@ server <- function(input, output) {
       pvalue <- toString(prueba[3])
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
+      if(length(numeros) < 1000){
+        showModal(modalDialog(
+          title = "Advertencia",
+          paste0("El número de valores generados es menor a 1000. Es recomendable que para que la Prueba de 
+                 Cramer-von Mises sea eficiente este valor sea mayor a 1000."),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
     } else if(input$pruebas=="Prueba de la Ji Cuadrada"){
       prueba <- ChiSquaredTest(numeros, as.numeric(input$alpha))
       estadistico <- as.numeric(prueba[1])
@@ -974,6 +975,15 @@ server <- function(input, output) {
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
+      if(length(numeros) < 4000){
+        showModal(modalDialog(
+          title = "Advertencia",
+          paste0("El número de valores generados es menor a 4000. Es recomendable que para que la Prueba de 
+                 las corridas sea eficiente este valor sea mayor a 4000."),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
     } else if(input$pruebas=="Correlación de atrasos"){
       prueba <- CorrelationTest(numeros, as.numeric(input$alpha))
       estadistico <- as.numeric(prueba[1])
