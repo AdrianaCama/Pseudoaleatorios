@@ -148,6 +148,10 @@ ui <- dashboardPage(
                tabPanel("Valor p",
                         valueBoxOutput("valuebox_pvalue", width = 100),
                         textOutput("text_pvalue")
+                        ),
+               tabPanel("Histograma",
+                        value = 3,
+                        plotOutput("hist_intervalos"),
                         )
                )
              )
@@ -160,6 +164,7 @@ server <- function(input, output) {
   shinyjs::hide(id = "download")
   shinyjs::hide(id = "hist_uniformidad")
   shinyjs::hide(id = "hist_distribucion")
+  shinyjs::hide(id = "hist_intervalos")
   shinyjs::hide(id = "valuebox_rechazo")
   shinyjs::hide(id = "valuebox_estadistico")
   
@@ -252,7 +257,7 @@ server <- function(input, output) {
     ############################################################################################
     # PENDIENTE: Revisar si la k es establecida o el usuario la especifica.
     ############################################################################################
-    k <- 5
+    k <- as.numeric(input$intervalos)
     numeros
     n <- length(numeros)
     
@@ -325,7 +330,7 @@ server <- function(input, output) {
       #     la muestra no proviene de una distribución uniforme.")
     }
     
-    return(list(Y, quantile_ChiSquared, p_value, rechazo_por_region, rechazo_por_pvalue))
+    return(list(Y, quantile_ChiSquared, p_value, rechazo_por_region, rechazo_por_pvalue, k))
   }
   
   
@@ -348,7 +353,7 @@ server <- function(input, output) {
     
     library(ggplot2)
     # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
-    k <- 5
+    k <- as.numeric(input$intervalos)
     
     # Checar si el número de datos a verificar independencia es par
     if(length(numeros)%%2 == 1){
@@ -396,7 +401,7 @@ server <- function(input, output) {
     expected <- matrix((length(temp)/2)/(k^2), k, k)
 
     #Cálculo del estadístico
-    estadistico <- ((k^(2))/(length(temp)))*sum((count-expected)^2)
+    estadistico <- ((k^(2))/(length(temp)/2))*sum((count-expected)^2)
     Y <- estadistico
 
     # Grados de libertad
@@ -434,13 +439,6 @@ server <- function(input, output) {
       #     la muestra no proviene de una distribución uniforme.")
     }
     
-    print("Rechazo por region")
-    print(rechazo_por_region)
-    
-    print("Rechazo por p value")
-    print(rechazo_por_pvalue)
-    
-    
     # Graficar los datos
     data <- data.frame(
       U1 <- U1,
@@ -450,10 +448,12 @@ server <- function(input, output) {
     # Generar los límites de los intervalos para las gráficas
     limits <- seq(from = 0, to = 1, length.out = k + 1)
     
-    graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
-    plot(graph) 
     
-    return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue, graph))
+    
+    graph <- ggplot(data, aes(U1, U2)) + geom_point() + scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + geom_hline(yintercept=limits) + geom_vline(xintercept=limits)
+    plot(graph)
+    
+    return(list(Y, quantile_SerialTest, p_value, rechazo_por_region, rechazo_por_pvalue, k, U1, U2, limits))
   }
   
   
@@ -901,7 +901,7 @@ server <- function(input, output) {
     # n debe ser al menos 2*atrasos + 1
     
     # Número de atrasos
-    atrasos <- 3
+    atrasos <- as.numeric(input$atrasos)
     h <- floor((n-1)/atrasos)-1
     
     # Formar vectores para el estimador considerando el número de atrasos
@@ -936,7 +936,7 @@ server <- function(input, output) {
       rechazo_por_pvalue <- 0
     }
     
-    return(list(Y, quantile_CorrelationTest, p_value, rechazo_por_region, rechazo_por_pvalue))
+    return(list(Y, quantile_CorrelationTest, p_value, rechazo_por_region, rechazo_por_pvalue, atrasos))
     
   }
   
@@ -958,6 +958,7 @@ server <- function(input, output) {
   # Acciones al presionar el botón "Evaluar"
   observeEvent(input$Button_evaluate, {
     #Codigo de las pruebas 
+    
     if(input$pruebas=="Prueba de Cramer-von Mises"){
       prueba <- CvM(numeros, as.numeric(input$alpha))
       estadistico <- round(as.numeric(prueba[1]), 5)
@@ -981,6 +982,7 @@ server <- function(input, output) {
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
+      intervalos <- as.numeric(prueba[6])
     } else if(input$pruebas=="Prueba Serial"){
       prueba <- SerialTest(numeros, as.numeric(input$alpha))
       estadistico <- as.numeric(prueba[1])
@@ -988,6 +990,10 @@ server <- function(input, output) {
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
+      intervalos <- as.numeric(prueba[6])
+      U1 <- as.numeric(unlist(prueba[7]))
+      U2 <- as.numeric(unlist(prueba[8]))
+      limits <- as.numeric(unlist(prueba[9]))
     } else if(input$pruebas=="Prueba de Kolmogorov-Smirnov"){
       prueba <- KS(numeros, as.numeric(input$alpha))
       estadistico <- round(as.numeric(prueba[1]), 5)
@@ -1019,6 +1025,7 @@ server <- function(input, output) {
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
+      atrasos <- as.numeric(prueba[6])
     }
     
     
@@ -1044,7 +1051,7 @@ server <- function(input, output) {
       shinyjs::show(id = "hist_distribucion")
     }
     
-    k <- 5
+    k <- as.numeric(input$intervalos)
     d <- 2
     if(input$pruebas == "Prueba de las corridas" || input$pruebas == "Prueba de la Ji Cuadrada" || 
          input$pruebas == "Prueba Serial"){
@@ -1054,6 +1061,7 @@ server <- function(input, output) {
         df <- k - 1
         }else{
         df <- k^d - 1
+        
         }
       output$hist_distribucion <- renderPlot({
         xtemp <- rchisq(10000, df)
@@ -1066,9 +1074,24 @@ server <- function(input, output) {
                         fill = "orange") +
           geom_vline(xintercept = estadistico) 
         })
+      data <- data.frame(
+        U1 <- U1,
+        U2 <- U2
+      )
+      output$hist_intervalos <- renderPlot({
+        ggplot(data, aes(U1, U2)) +
+          geom_point() + 
+          scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + 
+          scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + 
+          geom_hline(yintercept=limits) + 
+          geom_vline(xintercept=limits)
+      })
+      
+      
       shinyjs::hide(id = "valuebox_rechazo")
       shinyjs::hide(id = "valuebox_estadistico")
       shinyjs::show(id = "hist_distribucion")
+      shinyjs::show(id = "hist_intervalos")
     }
     if(input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
       shinyjs::hide(id = "hist_distribucion")
