@@ -1,4 +1,4 @@
-"","Evento","Tiempo","Estatus","Cola","⁄ltimo Evento","Hora","A","D","Clientes","Retraso","¡rea Q(t)","¡rea B(t)","Servidor","1ro","2do","3ro","4to"
+"","Evento","Tiempo","Estatus","Cola","√öltimo Evento","Hora","A","D","Clientes","Retraso","√Årea Q(t)","√Årea B(t)","Servidor","1ro","2do","3ro","4to"
 "","Inicio","0","0","0","0","0","4.55","Inf","0","0","0","0","0","0","0","0","0"
 "","Llegada","4.55","1","0","4.55","4.55","6.01","9.1","1","0","0","0","4.55","0","0","0","0"
 "","Llegada","6.01","1","1","6.01","6.01","11.91","9.1","1","0","0","1.46","4.55","6.01","0","0","0"

@@ -231,7 +231,8 @@ server <- function(input, output) {
                                                                  closed="left", 
                                                                  color="white", 
                                                                  fill="orange") + 
-          stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) 
+          stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) +
+          ylab("Densidad")
       })
       output$download <- downloadHandler(filename = "aleatorios.csv",
                                          content = function(file) {
@@ -1037,14 +1038,15 @@ server <- function(input, output) {
           stat_function(fun = dnorm, args = list(mean = 0, sd = 1)) + 
           stat_function(fun = dnorm,
                         args = list(mean = 0, sd = 1),
-                        xlim = c(cuantil,3),
+                        xlim = c(cuantil,3), 
                         geom = "area",
-                        fill = "orange") +
-          geom_vline(xintercept = estadistico) 
-          # scale_fill_manual(values = "orange", name = "Región de rechazo", 
-          #                   labels = "Región de rechazo")
-          #Ponerlo si queremos que se muestren los valores del estadístico y el cuantil 
-          #scale_x_continuous(breaks=c(-2,0,estadistico,cuantil,2))
+                        aes(fill = "orange")) +
+          geom_vline(aes(xintercept = estadistico, color = "black")) +
+          scale_colour_manual(values = "black", labels = "Estadístico de prueba", name = "") +
+          scale_fill_manual(values = "orange", labels = "Región de rechazo", name = "") +
+          ylab("Densidad") + 
+          theme(legend.position = c(.84, .80), panel.background = element_blank(), 
+                legend.text=element_text(size=12))
         })
       shinyjs::hide(id = "valuebox_rechazo")
       shinyjs::hide(id = "valuebox_estadistico")
@@ -1071,8 +1073,14 @@ server <- function(input, output) {
                         args = list(df = df),
                         xlim = c(cuantil,max(xtemp)),
                         geom = "area",
-                        fill = "orange") +
-          geom_vline(xintercept = estadistico) 
+                        aes(fill = "Región de rechazo")) +
+          geom_vline(aes(xintercept = estadistico, color = "Estadístico de prueba")) +
+          scale_colour_manual(values = "black", labels = "Estadístico de prueba", name = "") +
+          scale_fill_manual(values = "orange", labels = "Región de rechazo", name = "") +
+          ylab("Densidad") + 
+          xlab("x") + 
+          theme(legend.position = c(.75, .80), panel.background = element_blank(), 
+                legend.text=element_text(size=12))
         })
       data <- data.frame(
         U1 <- U1,
