@@ -940,11 +940,22 @@ server <- function(input, output) {
     
   }
   
+  # Deshabilitar opciones de acuerdo a lo que el usuario escoja
+  observeEvent(input$pruebas, {
+    if(input$pruebas == "Prueba de la Ji Cuadrada" || input$pruebas == "Prueba Serial"){
+      shinyjs::hide(id = "atrasos")
+      shinyjs::show(id = "intervalos")
+    } else if(input$pruebas == "Correlación de atrasos"){
+      shinyjs::hide(id = "intervalos")
+      shinyjs::show(id = "atrasos")
+    } else {
+      shinyjs::hide(id = "intervalos")
+      shinyjs::hide(id = "atrasos")
+    }
+  }
+  )
   
-  
-  
-  
-  
+  # Acciones al presionar el botón "Evaluar"
   observeEvent(input$Button_evaluate, {
     #Codigo de las pruebas 
     if(input$pruebas=="Prueba de Cramer-von Mises"){
