@@ -151,6 +151,26 @@ server <- function(input, output) {
   shinyjs::hide(id = "hist_distribucion")
   
   
+  ###################################################
+  ############ Deshabilitar opciones ################
+  ###################################################
+  observeEvent(input$Checkbox, {
+    
+    if(input$Checkbox == "Generar con función programada"){
+      shinyjs::show(id = "a")
+      shinyjs::show(id = "m")
+      shinyjs::show(id = "c")
+      shinyjs::show(id = "seed")
+    }
+    else if(input$Checkbox == "Generar con función de R"){
+      shinyjs::hide(id = "a")
+      shinyjs::hide(id = "m")
+      shinyjs::hide(id = "c")
+      shinyjs::hide(id = "seed")
+    }
+  })
+  
+  
   ### Generación de valores aleatorios #######################################################
   ############################################################################################
   observeEvent(input$Button_go, {
