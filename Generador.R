@@ -46,8 +46,9 @@ ui <- dashboardPage(
                #status = "warning",
                radioButtons(inputId = "Checkbox",
                             label = "Números pseudoaleatorios",
-                            choices = c("Ingresar (archivo CSV)", "Generar"),
-                            selected = "Generar"),
+                            choices = c("Generar con función de R", 
+                                        "Generar con función programada"),
+                            selected = "Generar con función programada"),
                # Input: Numerics para ingresar valores ----
                numericInput(inputId = "a",
                             label = "a:",
@@ -175,7 +176,11 @@ server <- function(input, output) {
       error <- 1
     } else {
       error <- 0
-      numeros <<- unif_generator(n = n, seed = semilla, m = m, a = a, c = c)
+      if (input$Checkbox == "Generar con función programada"){
+        numeros <<- unif_generator(n = n, seed = semilla, m = m, a = a, c = c)
+      } else if(input$Checkbox == "Generar con función de R"){
+        numeros <<- runif(n = n, 0, 1)
+      } 
     }
     
     
