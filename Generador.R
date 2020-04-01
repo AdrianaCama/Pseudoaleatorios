@@ -131,6 +131,8 @@ ui <- dashboardPage(
                id = "tabbox_resultados",
                width = NULL,
                tabPanel("Región de rechazo",
+                        valueBoxOutput("valuebox_rechazo", width = 100),
+                        valueBoxOutput("valuebox_estadistico", width = 100),
                         plotOutput("hist_distribucion"),
                         textOutput("text_region")
                         ),
@@ -149,6 +151,8 @@ server <- function(input, output) {
   shinyjs::hide(id = "download")
   shinyjs::hide(id = "hist_uniformidad")
   shinyjs::hide(id = "hist_distribucion")
+  shinyjs::hide(id = "valuebox_rechazo")
+  shinyjs::hide(id = "valuebox_estadistico")
   
   
   ###################################################
@@ -936,44 +940,44 @@ server <- function(input, output) {
     #Codigo de las pruebas 
     if(input$pruebas=="Prueba de Cramer-von Mises"){
       prueba <- CvM(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- round(as.numeric(prueba[1]), 5)
+      cuantil <- round(as.numeric(prueba[2]), 5)
       pvalue <- toString(prueba[3])
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba de la Ji Cuadrada"){
       prueba <- ChiSquaredTest(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba Serial"){
       prueba <- SerialTest(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba de Kolmogorov-Smirnov"){
       prueba <- KS(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- round(as.numeric(prueba[1]), 5)
+      cuantil <- round(as.numeric(prueba[2]), 5)
       pvalue <- toString(prueba[3])
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
       
     } else if(input$pruebas=="Prueba de las corridas"){
       prueba <- PC(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Correlación de atrasos"){
       prueba <- CorrelationTest(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
@@ -997,6 +1001,8 @@ server <- function(input, output) {
           #Ponerlo si queremos que se muestren los valores del estadístico y el cuantil 
           #scale_x_continuous(breaks=c(-2,0,estadistico,cuantil,2))
         })
+      shinyjs::hide(id = "valuebox_rechazo")
+      shinyjs::hide(id = "valuebox_estadistico")
       shinyjs::show(id = "hist_distribucion")
     }
     
@@ -1022,10 +1028,42 @@ server <- function(input, output) {
                         fill = "orange") +
           geom_vline(xintercept = estadistico) 
         })
+      shinyjs::hide(id = "valuebox_rechazo")
+      shinyjs::hide(id = "valuebox_estadistico")
       shinyjs::show(id = "hist_distribucion")
     }
     if(input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
       shinyjs::hide(id = "hist_distribucion")
+      shinyjs::show(id = "valuebox_rechazo")
+      shinyjs::show(id = "valuebox_estadistico")
+      if(input$pruebas == "Prueba de Kolmogorov-Smirnov"){
+        output$valuebox_rechazo <- renderValueBox({
+          valueBox(
+            paste("{D: D ", intToUtf8(8805), cuantil,"}"), "Región de rechazo", icon = icon("chart-pie"),
+            color = "red"
+          )
+        })
+        output$valuebox_estadistico <- renderValueBox({
+          valueBox(
+            estadistico, "D_n", icon = icon("chart-pie"),
+            color = "aqua"
+          )
+        })
+      }
+      if(input$pruebas == "Prueba de Cramer-von Mises"){
+        output$valuebox_rechazo <- renderValueBox({
+          valueBox(
+            paste("{Z: Z ", intToUtf8(8805), cuantil,"}"), "Región de rechazo", icon = icon("chart-pie"),
+            color = "red"
+          )
+        })
+        output$valuebox_estadistico <- renderValueBox({
+          valueBox(
+            estadistico, "Z", icon = icon("chart-pie"),
+            color = "aqua"
+          )
+        })
+      }
     }
     
     
