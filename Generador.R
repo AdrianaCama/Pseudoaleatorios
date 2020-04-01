@@ -140,6 +140,8 @@ ui <- dashboardPage(
                id = "tabbox_resultados",
                width = NULL,
                tabPanel("Región de rechazo",
+                        valueBoxOutput("valuebox_rechazo", width = 100),
+                        valueBoxOutput("valuebox_estadistico", width = 100),
                         plotOutput("hist_distribucion"),
                         textOutput("text_region")
                         ),
@@ -158,6 +160,28 @@ server <- function(input, output) {
   shinyjs::hide(id = "download")
   shinyjs::hide(id = "hist_uniformidad")
   shinyjs::hide(id = "hist_distribucion")
+  shinyjs::hide(id = "valuebox_rechazo")
+  shinyjs::hide(id = "valuebox_estadistico")
+  
+  
+  ###################################################
+  ############ Deshabilitar opciones ################
+  ###################################################
+  observeEvent(input$Checkbox, {
+    
+    if(input$Checkbox == "Generar con función programada"){
+      shinyjs::show(id = "a")
+      shinyjs::show(id = "m")
+      shinyjs::show(id = "c")
+      shinyjs::show(id = "seed")
+    }
+    else if(input$Checkbox == "Generar con función de R"){
+      shinyjs::hide(id = "a")
+      shinyjs::hide(id = "m")
+      shinyjs::hide(id = "c")
+      shinyjs::hide(id = "seed")
+    }
+  })
   
   
   ### Generación de valores aleatorios #######################################################
@@ -557,6 +581,7 @@ server <- function(input, output) {
         if(i == 7){
           fin <- 1
           p_value <- "VP<0.01"
+          opcion <- 1
           }
         }else{
           if (tabla_KS[41, i] > D_n){
@@ -600,10 +625,10 @@ server <- function(input, output) {
           if(i == 7){
             fin <- 1
             p_value <- "VP<0.01"
+            opcion <- 1
           }
         }
-      } 
-    
+    } 
     D_n <- as.numeric(D_n)
     d_alpha <- as.numeric(d_alpha)
     
@@ -843,16 +868,8 @@ server <- function(input, output) {
     R <- (1/n) * suma
     
     
-    if(n>=4000){
-      quantile_corridas <- qchisq(1-alpha, 6)
-    } 
-    # Falta cuando n<4000 con un else
-    
-    
-    if(n>=4000){
-      p_value <- pchisq(R, 6, lower.tail = FALSE)
-    } 
-    # Falta cuando n<4000 con un else
+    quantile_corridas <- qchisq(1-alpha, 6)
+    p_value <- pchisq(R, 6, lower.tail = FALSE)
     
     
     if(R >= quantile_corridas){
@@ -932,44 +949,62 @@ server <- function(input, output) {
     #Codigo de las pruebas 
     if(input$pruebas=="Prueba de Cramer-von Mises"){
       prueba <- CvM(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- round(as.numeric(prueba[1]), 5)
+      cuantil <- round(as.numeric(prueba[2]), 5)
       pvalue <- toString(prueba[3])
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
+      if(length(numeros) < 1000){
+        showModal(modalDialog(
+          title = "Advertencia",
+          paste0("El número de valores generados es menor a 1000. Es recomendable que para que la Prueba de 
+                 Cramer-von Mises sea eficiente este valor sea mayor a 1000."),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
     } else if(input$pruebas=="Prueba de la Ji Cuadrada"){
       prueba <- ChiSquaredTest(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba Serial"){
       prueba <- SerialTest(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
     } else if(input$pruebas=="Prueba de Kolmogorov-Smirnov"){
       prueba <- KS(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- round(as.numeric(prueba[1]), 5)
+      cuantil <- round(as.numeric(prueba[2]), 5)
       pvalue <- toString(prueba[3])
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
       
     } else if(input$pruebas=="Prueba de las corridas"){
       prueba <- PC(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
+      if(length(numeros) < 4000){
+        showModal(modalDialog(
+          title = "Advertencia",
+          paste0("El número de valores generados es menor a 4000. Es recomendable que para que la Prueba de 
+                 las corridas sea eficiente este valor sea mayor a 4000."),
+          easyClose = TRUE,
+          footer = NULL
+        ))
+      }
     } else if(input$pruebas=="Correlación de atrasos"){
       prueba <- CorrelationTest(numeros, as.numeric(input$alpha))
-      estadistico <- round(as.numeric(prueba[1]), 2)
-      cuantil <- round(as.numeric(prueba[2]), 2)
+      estadistico <- as.numeric(prueba[1])
+      cuantil <- as.numeric(prueba[2])
       pvalue <- round(as.numeric(prueba[3]), 2)
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
@@ -993,6 +1028,8 @@ server <- function(input, output) {
           #Ponerlo si queremos que se muestren los valores del estadístico y el cuantil 
           #scale_x_continuous(breaks=c(-2,0,estadistico,cuantil,2))
         })
+      shinyjs::hide(id = "valuebox_rechazo")
+      shinyjs::hide(id = "valuebox_estadistico")
       shinyjs::show(id = "hist_distribucion")
     }
     
@@ -1018,10 +1055,42 @@ server <- function(input, output) {
                         fill = "orange") +
           geom_vline(xintercept = estadistico) 
         })
+      shinyjs::hide(id = "valuebox_rechazo")
+      shinyjs::hide(id = "valuebox_estadistico")
       shinyjs::show(id = "hist_distribucion")
     }
     if(input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
       shinyjs::hide(id = "hist_distribucion")
+      shinyjs::show(id = "valuebox_rechazo")
+      shinyjs::show(id = "valuebox_estadistico")
+      if(input$pruebas == "Prueba de Kolmogorov-Smirnov"){
+        output$valuebox_rechazo <- renderValueBox({
+          valueBox(
+            paste("{D: D ", intToUtf8(8805), cuantil,"}"), "Región de rechazo", icon = icon("chart-pie"),
+            color = "red"
+          )
+        })
+        output$valuebox_estadistico <- renderValueBox({
+          valueBox(
+            estadistico, "D_n", icon = icon("chart-pie"),
+            color = "aqua"
+          )
+        })
+      }
+      if(input$pruebas == "Prueba de Cramer-von Mises"){
+        output$valuebox_rechazo <- renderValueBox({
+          valueBox(
+            paste("{Z: Z ", intToUtf8(8805), cuantil,"}"), "Región de rechazo", icon = icon("chart-pie"),
+            color = "red"
+          )
+        })
+        output$valuebox_estadistico <- renderValueBox({
+          valueBox(
+            estadistico, "Z", icon = icon("chart-pie"),
+            color = "aqua"
+          )
+        })
+      }
     }
     
     
