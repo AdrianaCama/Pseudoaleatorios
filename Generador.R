@@ -66,7 +66,7 @@ ui <- dashboardPage(
                             ),
                numericInput(inputId = "n",
                             label = "n:",
-                            min = 0,
+                            min = 4000,
                             value = 10000
                             ),
                numericInput(inputId = "seed",
