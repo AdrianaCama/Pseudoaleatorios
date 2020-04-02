@@ -25,7 +25,7 @@ unif_generator <- function(n,min=0,max=1,seed=621,m=(2^31)-1,a=724938285,c=0){
 ui <- dashboardPage(
   # App title ----
   dashboardHeader(title = "Generador de números aleatorios"),
-  #skin = "green",
+  skin = "green",
   dashboardSidebar(
     disable = TRUE
     #sidebarMenu(
@@ -149,7 +149,7 @@ ui <- dashboardPage(
                         valueBoxOutput("valuebox_pvalue", width = 100),
                         textOutput("text_pvalue")
                         ),
-               tabPanel("Histograma",
+               tabPanel("Gráfica",
                         value = 3,
                         plotOutput("hist_intervalos"),
                         )
@@ -259,7 +259,6 @@ server <- function(input, output) {
     # PENDIENTE: Revisar si la k es establecida o el usuario la especifica.
     ############################################################################################
     k <- as.numeric(input$intervalos)
-    numeros
     n <- length(numeros)
     
     # f es un vector que contiene las f_j. f_j es el número de observaciones en la muestra que se 
@@ -342,16 +341,6 @@ server <- function(input, output) {
   
   
   SerialTest <- function(numeros, alfa){
-    
-    
-    #numeros <- c(0.045555, 0.065749, 0.092871, 0.149668, 0.190782, 0.224291, 0.260000, 0.321474,
-    #             0.332037, 0.392275, 0.404315, 0.431058, 0.468068, 0.495164, 0.569813, 0.631893,
-    #             0.652066, 0.785885, 0.830250, 0.846584)
-    
-    #numeros <- runif(10000)
-    
-    #numeros <- unif_generator(10000)
-    
     library(ggplot2)
     # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
     k <- as.numeric(input$intervalos)
@@ -831,6 +820,9 @@ server <- function(input, output) {
   # Prueba 5: Prueba de las corridas ################
   ###################################################
   ###################################################
+  
+  secuencia <- c(0.22317383,0.82220999,0.11944974,0.23844417,0.00416896,0.04593599,0.88826024,0.73882373,0.2347258,0.81838537,0.28577309,0.06599242,0.48352499,0.41014991,0.6706971)
+
   PC<- function(secuencia, alpha){
     a <- rbind(c(4529.4, 9044.9, 13568, 18091, 22615, 27892),
                c(9044.9, 18097, 27139, 36187, 45234, 55789),
@@ -859,7 +851,7 @@ server <- function(input, output) {
       r[1] <- r[1] + 1
     }
     
-    
+    r
     suma <- 0
     for(i in 1:6){
       for(j in 1:6){
@@ -895,8 +887,6 @@ server <- function(input, output) {
   ###################################################
   CorrelationTest <- function(numeros,alfa){
     # Obtener parámetros
-    numeros <- unif_generator(10000)
-    
     n <- length(numeros)
     
     # n debe ser al menos 2*atrasos + 1
@@ -1070,8 +1060,10 @@ server <- function(input, output) {
          input$pruebas == "Prueba Serial"){
       if(input$pruebas=="Prueba de las corridas"){
         df <- 6
+        shinyjs::hide(id = "hist_intervalos")
         }else if(input$pruebas=="Prueba de la Ji Cuadrada") {
         df <- k - 1
+        shinyjs::hide(id = "hist_intervalos")
         }else{
         df <- k^d - 1
         data <- data.frame(
@@ -1086,6 +1078,7 @@ server <- function(input, output) {
             geom_hline(yintercept=limits) + 
             geom_vline(xintercept=limits)
         })
+        shinyjs::show(id = "hist_intervalos")
         }
       output$hist_distribucion <- renderPlot({
         xtemp <- rchisq(10000, df)
@@ -1108,12 +1101,12 @@ server <- function(input, output) {
       shinyjs::hide(id = "valuebox_rechazo")
       shinyjs::hide(id = "valuebox_estadistico")
       shinyjs::show(id = "hist_distribucion")
-      shinyjs::show(id = "hist_intervalos")
     }
     if(input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
       shinyjs::hide(id = "hist_distribucion")
       shinyjs::show(id = "valuebox_rechazo")
       shinyjs::show(id = "valuebox_estadistico")
+      shinyjs::hide(id = "hist_intervalos")
       if(input$pruebas == "Prueba de Kolmogorov-Smirnov"){
         output$valuebox_rechazo <- renderValueBox({
           valueBox(
