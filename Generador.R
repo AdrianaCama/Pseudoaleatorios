@@ -922,7 +922,13 @@ server <- function(input, output) {
     z <- qnorm(1-(alfa/2))
     quantile_CorrelationTest <- z
     
-    p_value <- 2*pnorm(0.8641, lower.tail = FALSE)
+    if(Y >= 0){
+      p_value <- 2*pnorm(Y, lower.tail = FALSE)
+    }else{
+      p_value <- 2*(1 - pnorm(Y, lower.tail = FALSE))
+    }
+
+    
     
     if(abs(A) >= quantile_CorrelationTest){
       rechazo_por_region <- 1
@@ -1039,6 +1045,11 @@ server <- function(input, output) {
           stat_function(fun = dnorm,
                         args = list(mean = 0, sd = 1),
                         xlim = c(cuantil,3), 
+                        geom = "area",
+                        aes(fill = "orange")) +
+          stat_function(fun = dnorm,
+                        args = list(mean = 0, sd = 1),
+                        xlim = c(-3,-cuantil), 
                         geom = "area",
                         aes(fill = "orange")) +
           geom_vline(aes(xintercept = estadistico, color = "black")) +
