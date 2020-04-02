@@ -342,6 +342,10 @@ server <- function(input, output) {
   
   SerialTest <- function(numeros, alfa){
     library(ggplot2)
+    
+    alfa <- 0.05
+    runif(10000)
+    
     # Establecer el tamaño de k. Mandar aviso al usuario si establece una k muy grande.
     k <- as.numeric(input$intervalos)
     
@@ -399,7 +403,8 @@ server <- function(input, output) {
     
     # Cálculo del cuantil
     cuantil <- qchisq(p=1-alfa,df=df,lower.tail = TRUE)
-    aproximación <- ((k^2)-1)*(1-(2/(9*((k^2)-1)))+z*sqrt(2/(9*((k^2)-1))))^(3)
+    z <- qnorm(p = 1-alfa)
+    aproximacion <- ((k^2)-1)*(1-(2/(9*((k^2)-1)))+z*sqrt(2/(9*((k^2)-1))))^(3)
     
     quantile_SerialTest <- cuantil
     
@@ -408,6 +413,10 @@ server <- function(input, output) {
     # p_value <- pchisq(q=estadistico,df=k-1,lower.tail = FALSE)
     
     # Rechazo por región
+    if(k > 100){
+      cuantil <- aproximacion
+    }
+    
     if(estadistico >= cuantil){
       rechazo_por_region <- 1
       # print("Se rechaza la hipótesis nula. Es decir, existe suficiente evidencia para afirmar que
@@ -821,7 +830,8 @@ server <- function(input, output) {
   ###################################################
   ###################################################
   
-  secuencia <- c(0.22317383,0.82220999,0.11944974,0.23844417,0.00416896,0.04593599,0.88826024,0.73882373,0.2347258,0.81838537,0.28577309,0.06599242,0.48352499,0.41014991,0.6706971)
+  secuencia <- c(0.22317383,0.82220999,0.11944974,0.23844417,0.00416896,0.04593599,0.88826024,0.73882373,0.2347258,0.81838537,0.28577309,0.06599242,0.48352499,0.41014991,0.6706971,0.88065793,0.854395,0.39438387,0.96948658,0.16150143,0.82201839,0.43925927,0.88317153,0.32954575,0.55911048,0.70385292,0.91883758,0.89169391,0.89169391,
+                 0.9144542,0.27766943)
 
   PC<- function(secuencia, alpha){
     a <- rbind(c(4529.4, 9044.9, 13568, 18091, 22615, 27892),
