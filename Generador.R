@@ -998,8 +998,8 @@ server <- function(input, output) {
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
       intervalos <- as.numeric(prueba[6])
-      U1 <- as.numeric(unlist(prueba[7]))
-      U2 <- as.numeric(unlist(prueba[8]))
+      U1_graph <- as.numeric(unlist(prueba[7]))
+      U2_graph <- as.numeric(unlist(prueba[8]))
       limits <- as.numeric(unlist(prueba[9]))
     } else if(input$pruebas=="Prueba de Kolmogorov-Smirnov"){
       prueba <- KS(numeros, as.numeric(input$alpha))
@@ -1074,7 +1074,18 @@ server <- function(input, output) {
         df <- k - 1
         }else{
         df <- k^d - 1
-        
+        data <- data.frame(
+          U1 <- U1_graph,
+          U2 <- U2_graph
+        )
+        output$hist_intervalos <- renderPlot({
+          ggplot(data, aes(U1, U2)) +
+            geom_point() + 
+            scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + 
+            scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + 
+            geom_hline(yintercept=limits) + 
+            geom_vline(xintercept=limits)
+        })
         }
       output$hist_distribucion <- renderPlot({
         xtemp <- rchisq(10000, df)
@@ -1093,19 +1104,6 @@ server <- function(input, output) {
           theme(legend.position = c(.75, .80), panel.background = element_blank(), 
                 legend.text=element_text(size=12))
         })
-      data <- data.frame(
-        U1 <- U1,
-        U2 <- U2
-      )
-      output$hist_intervalos <- renderPlot({
-        ggplot(data, aes(U1, U2)) +
-          geom_point() + 
-          scale_x_continuous(limits = c(0,1), expand = c(0, 0)) + 
-          scale_y_continuous(limits = c(0,1), expand = c(0, 0)) + 
-          geom_hline(yintercept=limits) + 
-          geom_vline(xintercept=limits)
-      })
-      
       
       shinyjs::hide(id = "valuebox_rechazo")
       shinyjs::hide(id = "valuebox_estadistico")
