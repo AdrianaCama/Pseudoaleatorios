@@ -1001,7 +1001,6 @@ server <- function(input, output) {
       pvalue <- toString(prueba[3])
       rechazo_por_region <- as.numeric(prueba[4])
       rechazo_por_pvalue <- as.numeric(prueba[5])
-      
     } else if(input$pruebas=="Prueba de las corridas"){
       prueba <- PC(numeros, as.numeric(input$alpha))
       estadistico <- as.numeric(prueba[1])
