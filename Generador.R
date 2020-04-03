@@ -75,14 +75,6 @@ ui <- dashboardPage(
                             min = 0,
                             value = 621
                             ),
-               # radioButtons(inputId = "generador",
-               #              label = "Elige un generador: ",
-               #              choices = c( "Generador de valores de una v.a. con distribución 
-               #                          uniforme", "Monte Carlo", 
-               #                           "Generador Congruencial Multiplicativo", 
-               #                          "Generador Congruencial Mixto o Congruencial Lineal"),
-               #              selected = "Monte Carlo"
-               # ),
                actionButton(inputId = "Button_go", label = "Generar")
               ),
              box(
@@ -704,7 +696,6 @@ server <- function(input, output) {
     fin <- 0
     opcion <- 0
     while(fin == 0){
-      print(tabla_CVM[14, i])
         if (tabla_CVM[14, i]>Y){
           fin <- 1
           if(i == 13){
@@ -827,7 +818,6 @@ server <- function(input, output) {
   
   # secuencia <- c(0.22317383,0.82220999,0.11944974,0.23844417,0.00416896,0.04593599,0.88826024,0.73882373,0.2347258,0.81838537,0.28577309,0.06599242,0.48352499,0.41014991,0.6706971,0.88065793,0.854395,0.39438387,0.96948658,0.16150143,0.82201839,0.43925927,0.88317153,0.32954575,0.55911048,0.70385292,0.91883758,0.89169391,
   #               0.9144542,0.27766943)
-
   PC<- function(secuencia, alpha){
     a <- rbind(c(4529.4, 9044.9, 13568, 18091, 22615, 27892),
                c(9044.9, 18097, 27139, 36187, 45234, 55789),
@@ -1145,7 +1135,7 @@ server <- function(input, output) {
     }else{
       output$text_region <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
     }
-    
+
     
     
     ### Resultados del valor p ###
