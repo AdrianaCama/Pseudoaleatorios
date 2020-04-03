@@ -51,17 +51,17 @@ ui <- dashboardPage(
                             selected = "Generar con función programada"),
                # Input: Numerics para ingresar valores ----
                numericInput(inputId = "a",
-                            label = "a:",
+                            label = "Multiplicador(a):",
                             min = 0,
                             value = 2^7 + 1
                             ),
                numericInput(inputId = "m",
-                            label = "m:",
+                            label = "Módulo(m):",
                             min = 0,
                             value = 2^35
                             ),
                numericInput(inputId = "c",
-                            label = "c:",
+                            label = "Incremento(c):",
                             min = 0,
                             value = 1
                             ),
@@ -198,13 +198,31 @@ server <- function(input, output) {
     semilla <- input$seed
     
     # Checar que sean valores numéricos
-    if(is.numeric(a)==FALSE){
+    if(is.numeric(a) == FALSE || a < 0 || m < 0 || c < 0 || n < 0 || semilla < 0){
       showModal(modalDialog(
         title = "Error",
         "Alguno de los valores introducidos es incorrecto, por favor verifique sus entradas."
       ))
       error <- 1
-    } else {
+    }else if(a >= m){
+      showModal(modalDialog(
+        title = "Error",
+        "El valor de a debe ser menor al de m."
+      ))
+      error <- 1
+    }else if(c >= m){
+      showModal(modalDialog(
+        title = "Error",
+        "El valor de c debe ser menor al de m."
+      ))
+      error <- 1
+    }else if(semilla >= m){
+      showModal(modalDialog(
+        title = "Error",
+        "El valor de la semilla debe ser menor al de m."
+      ))
+      error <- 1
+    }else {
       error <- 0
       if (input$Checkbox == "Generar con función programada"){
         numeros <<- unif_generator(n = n, seed = semilla, m = m, a = a, c = c)
@@ -1131,9 +1149,19 @@ server <- function(input, output) {
     
     
     if(rechazo_por_region == 1){
-      output$text_region <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+      if(input$pruebas == "Prueba de la Ji Cuadrada" || input$pruebas == "Prueba Serial" ||
+         input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
+        output$text_pvalue <- renderText({"Existe suficiente evidencia para rechazar la uniformidad de los números generados."})
+      }else{
+        output$text_pvalue <- renderText({"Existe suficiente evidencia para rechazar la independencia de los números generados."})
+      }
     }else{
-      output$text_region <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+      if(input$pruebas == "Prueba de la Ji Cuadrada" || input$pruebas == "Prueba Serial" ||
+         input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
+        output$text_pvalue <- renderText({"No existe suficiente evidencia para rechazar la uniformidad de los números generados."})
+      }else{
+        output$text_pvalue <- renderText({"No existe suficiente evidencia para rechazar la independencia de los números generados."})
+      }
     }
 
     
@@ -1147,9 +1175,19 @@ server <- function(input, output) {
       )
     })
     if(rechazo_por_pvalue == 1){
-      output$text_pvalue <- renderText({paste("Existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+      if(input$pruebas == "Prueba de la Ji Cuadrada" || input$pruebas == "Prueba Serial" ||
+         input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
+        output$text_region <- renderText({"Existe suficiente evidencia para rechazar la uniformidad de los números generados."})
+      }else{
+        output$text_region <- renderText({"Existe suficiente evidencia para rechazar la independencia de los números generados."})
+      }
     }else{
-      output$text_pvalue <- renderText({paste("No existe suficiente evidencia para rechazar la uniformidad y/o independencia de los números generados.")})
+      if(input$pruebas == "Prueba de la Ji Cuadrada" || input$pruebas == "Prueba Serial" ||
+         input$pruebas == "Prueba de Kolmogorov-Smirnov" || input$pruebas == "Prueba de Cramer-von Mises"){
+        output$text_region <- renderText({"No existe suficiente evidencia para rechazar la uniformidad de los números generados."})
+      }else{
+        output$text_region <- renderText({"No existe suficiente evidencia para rechazar la independencia de los números generados."})
+      }
     }
   })
   
