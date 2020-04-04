@@ -253,11 +253,11 @@ server <- function(input, output) {
       output$hist_uniformidad <- renderPlot({
         ggplot(data.frame("Valores" = numeros)) + geom_histogram(aes(x=Valores,y=..density..), 
                                                                  alpha=0.7, 
-                                                                 breaks=seq(0, 1, 0.05), 
+                                                                 breaks=seq(0, 1, 0.025), 
                                                                  closed="left", 
                                                                  color="white", 
-                                                                 fill="orange") + 
-          stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) +
+                                                                 fill="lightpink2") + 
+          stat_function(fun = dunif, args = list(0,1), colour = "aquamarine3",size=1) +
           ylab("Densidad")
       })
       output$download <- downloadHandler(filename = "aleatorios.csv",
@@ -1062,15 +1062,15 @@ server <- function(input, output) {
                         args = list(mean = 0, sd = 1),
                         xlim = c(cuantil,3), 
                         geom = "area",
-                        aes(fill = "orange")) +
+                        aes(fill = "indianred2")) +
           stat_function(fun = dnorm,
                         args = list(mean = 0, sd = 1),
                         xlim = c(-3,-cuantil), 
                         geom = "area",
-                        aes(fill = "orange")) +
+                        aes(fill = "indianred2")) +
           geom_vline(aes(xintercept = estadistico, color = "black")) +
           scale_colour_manual(values = "black", labels = "Estadístico de prueba", name = "") +
-          scale_fill_manual(values = "orange", labels = "Región de rechazo", name = "") +
+          scale_fill_manual(values = "indianred2", labels = "Región de rechazo", name = "") +
           ylab("Densidad") + 
           theme(legend.position = c(.84, .80), panel.background = element_blank(), 
                 legend.text=element_text(size=12))
@@ -1117,7 +1117,7 @@ server <- function(input, output) {
                         aes(fill = "Región de rechazo")) +
           geom_vline(aes(xintercept = estadistico, color = "Estadístico de prueba")) +
           scale_colour_manual(values = "black", labels = "Estadístico de prueba", name = "") +
-          scale_fill_manual(values = "orange", labels = "Región de rechazo", name = "") +
+          scale_fill_manual(values = "indianred2", labels = "Región de rechazo", name = "") +
           ylab("Densidad") + 
           xlab("x") + 
           theme(legend.position = c(.75, .80), panel.background = element_blank(), 
