@@ -240,8 +240,8 @@ server <- function(input, output) {
                                                                  breaks=seq(0, 1, 0.025), 
                                                                  closed="left", 
                                                                  color="white", 
-                                                                 fill="orange") + 
-          stat_function(fun = dunif, args = list(0,1), colour = "dodgerblue3",size=1) +
+                                                                 fill="lightpink2") + 
+          stat_function(fun = dunif, args = list(0,1), colour = "aquamarine3",size=1) +
           ylab("Densidad")
       })
       output$download <- downloadHandler(filename = "aleatorios.csv",
