@@ -1,15 +1,8 @@
-#install.packages("devtools")
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(ggfortify)
-#library(devtools)
-#install_github("nik01010/dashboardthemes")
-
-# css_dir <- getwd()
-# paste0(css_dir,"/")
-
 
 unif_generator <- function(n,min=0,max=1,seed=621,m=(2^31)-1,a=724938285,c=0){
   size <- n
@@ -31,30 +24,27 @@ unif_generator <- function(n,min=0,max=1,seed=621,m=(2^31)-1,a=724938285,c=0){
 
 ui <- dashboardPage(
   # App title ----
-  dashboardHeader(title = HTML("GENERADOR DE <br/> NÚMEROS ALEATORIOS")),
-  #skin = "green",
-  
+  dashboardHeader(title = "Generador de números aleatorios", titleWidth = 2000),
+  skin = "green",
   dashboardSidebar(
-    disable = TRUE,
-  sidebarMenu(
-  #     menuItem("Valores", tabName = "inventarios", icon = icon("truck-loading")),
-  #     menuItem("Pruebas estadísticas", tabName = "colas", icon = icon("user-clock"))
-  )
+    disable = FALSE,
+    sidebarMenu(
+      menuItem("Valores", tabName = "valores", icon = icon("truck-loading")),
+      menuItem("Pruebas estadísticas", tabName = "pruebas", icon = icon("user-clock"))
+    )
   ),
   
   # Sidebar panel for inputs ----
   dashboardBody(
     useShinyjs(),
-    # shinyDashboardThemes(
-    #   theme = "blue_gradient"
-    # ),
     fluidRow(
       column(width = 6,
              box(
                title = "Valores",
                width = NULL,
                solidHeader = TRUE,
-               #background = "navy",
+               br(),
+               background = "green",
                collapsible = TRUE,
                #status = "warning",
                radioButtons(inputId = "Checkbox",
@@ -92,9 +82,6 @@ ui <- dashboardPage(
               ),
              box(
                title = "Pruebas estadísticas",
-               solidHeader = TRUE,
-               br(),
-               #background = "olive",
                width = NULL,
                radioButtons(inputId = "pruebas",
                             label = "Elige una prueba: ",
@@ -133,7 +120,7 @@ ui <- dashboardPage(
                #solidHeader = TRUE,
                id = "tabbox_generado",
                width = NULL,
-               side = "right",
+               #background = "black",
                tabPanel("Números generados",
                         DT::dataTableOutput(outputId = "random_table"),
                         downloadButton("download", label = "Descargar CSV")
@@ -144,8 +131,8 @@ ui <- dashboardPage(
                ),
              tabBox(
                title = tagList(shiny::icon("area-chart"), "Resultados"),
+               #solidHeader = TRUE,
                id = "tabbox_resultados",
-               side = "right",
                width = NULL,
                tabPanel("Región de rechazo",
                         valueBoxOutput("valuebox_rechazo", width = 100),
@@ -164,8 +151,7 @@ ui <- dashboardPage(
                )
              )
       )
-    ),
-  tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"))
+    )
 )
 
 
@@ -214,7 +200,7 @@ server <- function(input, output) {
     semilla <- input$seed
     
     # Checar que sean valores numéricos
-    if(is.numeric(a) == FALSE || is.numeric(m) == FALSE || is.numeric(c) == FALSE || is.numeric(n) == FALSE || is.numeric(semilla) == FALSE || a < 0 || m < 0 || c < 0 || n <= 0 || semilla < 0){
+    if(is.numeric(a) == FALSE || a < 0 || m < 0 || c < 0 || n <= 0 || semilla < 0){
       showModal(modalDialog(
         title = "Error",
         "Alguno de los valores introducidos es incorrecto, por favor verifique sus entradas."

@@ -1,0 +1,160 @@
+@import url("//fonts.googleapis.com/css?family=Lobster|Cabin:400,700");
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Proza+Libre:400,500,700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Monoton&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Londrina+Shadow&display=swap');
+/*---------------------------------------------------*/
+/* Header */
+
+body{
+  color: white;
+}
+
+.main-header {
+  /* Temporal */
+  background: url(background.jfif);
+  width: 100vw;
+  height: 5000px !important;
+  text-align: center;
+  min-height:50% !important;
+  max-height: 210px
+}
+
+.main-header .logo {
+  font-size: 5em;
+  font-family: 'Lobster', sans-serif;
+  font-family: 'Monoton', cursive;
+  font-family: 'Londrina Shadow', cursive;
+  font-weight: 500;
+  line-height: 1.1;
+  background: url(background.jfif);
+  width: 100%;
+  position: absolute;
+  top: 10%;
+  height: 200px;
+  
+}
+
+.main-header .navbar-static-top{
+  width: 0px;
+  /* Telegram */
+}
+
+/*---------------------------------------------------*/
+
+
+.wrapper .content-wrapper .content {
+  background : url(background.jfif);
+}
+
+/* Box titles */
+.box-header {
+  text-align: center;
+  /* Telegram */
+  background: #134243;
+  vertical-align: middle;
+}
+
+.box-solid {
+  /* Telegram */
+  opacity: 0.9;
+  color: white;
+}
+
+.box-body {
+  /* Telegram */
+  background: #092f2d;
+  background: rgba(9, 47, 45);
+  vertical-align: middle;
+}
+
+
+
+
+.box-title {
+  font-family: 'Proza Libre', sans-serif;
+  font-weight: 500;
+  line-height: 1;
+  /* Telegram */
+  color: white;
+}
+
+#a, #m, #c, #n, #seed, #intervalos {
+  /* Telegram */
+  background: #134243;
+  border-color: rgba(0,0,0,0);
+  /* Telegram */
+  color: #7abbba;
+}
+
+#alpha {
+  
+}
+
+/* Texto que aparece arriba de los inputs */
+.control-label {
+  font-family: 'Proza Libre', sans-serif;
+  font-weight: 500;
+  line-height: 1.1;
+  /* Telegram */
+  color: #05f7e7;
+  margin: auto;
+}
+
+/* Radio buttons */
+
+/* Select input*/
+.selectize-input, .selectize-dropdown{
+  background: #134243 !important;
+  border-color: rgba(0,0,0,0) !important;
+  /* Telegram */
+  color: #7abbba;
+}
+
+.active {
+  background: #092f2d !important;
+  border-color: rgba(0,0,0,0) !important;
+  /* Telegram */
+}
+
+.active:hover{
+  /* Telegram */
+  color: white;
+}
+
+/* Radio buttons or checkboxes */
+input[type="radio"] {
+    /*display: none;*/
+}
+
+/* Buttons */
+#Button_evaluate, #Button_go {
+  color: white;
+  font-family: 'Proza Libre', sans-serif;
+  font-weight: bold;
+  background: #00d1c3;
+  border-color: rgba(0,0,0,0) !important;
+  width: 100%;
+}
+
+
+
+
+
+
+
+
+.nav-tabs-custom .tab-content {
+  background-color: green;
+}
+
+.tab-content {
+  background: #134243;
+  border-color: transparent;
+}
+
+.col-sm- {
+  background: orange;
+}
+
+
