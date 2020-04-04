@@ -237,7 +237,7 @@ server <- function(input, output) {
       output$hist_uniformidad <- renderPlot({
         ggplot(data.frame("Valores" = numeros)) + geom_histogram(aes(x=Valores,y=..density..), 
                                                                  alpha=0.7, 
-                                                                 breaks=seq(0, 1, 0.05), 
+                                                                 breaks=seq(0, 1, 0.025), 
                                                                  closed="left", 
                                                                  color="white", 
                                                                  fill="orange") + 
