@@ -13,6 +13,7 @@ library(ggfortify)
 
 unif_generator <- function(n,min=0,max=1,seed=621,m=(2^31)-1,a=724938285,c=0){
   size <- n
+  a <- as.double(a)
   if(n == 1){
     n <- 621*n
   }
@@ -1078,7 +1079,8 @@ server <- function(input, output) {
                         geom = "area",
                         aes(fill = "indianred2")) +
           geom_vline(aes(xintercept = estadistico, color = "black")) +
-          scale_colour_manual(values = "black", labels = "Estadístico de prueba", name = "") +
+          scale_colour_manual(values = "black", 
+                              labels = paste("Estadístico de prueba (", round(estadistico,2), ")"), name = "") +
           scale_fill_manual(values = "indianred2", labels = "Región de rechazo", name = "") +
           ylab("Densidad") + 
           theme(legend.position = c(.84, .80), panel.background = element_blank(), 
@@ -1125,7 +1127,8 @@ server <- function(input, output) {
                         geom = "area",
                         aes(fill = "Región de rechazo")) +
           geom_vline(aes(xintercept = estadistico, color = "Estadístico de prueba")) +
-          scale_colour_manual(values = "black", labels = "Estadístico de prueba", name = "") +
+          scale_colour_manual(values = "black", 
+                              labels = paste("Estadístico de prueba (", round(estadistico,2), ")"), name = "") +
           scale_fill_manual(values = "indianred2", labels = "Región de rechazo", name = "") +
           ylab("Densidad") + 
           xlab("x") + 
