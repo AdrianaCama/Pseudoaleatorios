@@ -242,9 +242,9 @@ server <- function(input, output) {
     } else {
       error <- 0
       if (input$Checkbox == "Generar con función programada"){
-        numeros <- unif_generator(n = n, min = 0, max = 1, seed = semilla, m = m, a = a, c = c)
+        numeros <<- unif_generator(n = n, min = 0, max = 1, seed = semilla, m = m, a = a, c = c)
       } else if(input$Checkbox == "Generar con función de R"){
-        numeros <- runif(n = n, 0, 1)
+        numeros <<- runif(n = n, 0, 1)
       } 
     }
     
@@ -383,7 +383,7 @@ server <- function(input, output) {
     }
     
     # "Revolver" los números
-    num_2 <- sample(num_2, size = length(num_2), replace = FALSE)
+    #num_2 <- sample(num_2, size = length(num_2), replace = FALSE)
     U1 <- num_2[1:(length(num_2)/2)]
     U2 <- num_2[((length(num_2)/2)+1):length(num_2)]
     
