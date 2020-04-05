@@ -873,17 +873,27 @@ server <- function(input, output) {
       if(secuencia[i]>secuencia[i-1]){
         largo <- largo + 1
       } else{
-        r[largo] <- r[largo] + 1
+        if(largo<=6){
+          r[largo] <- r[largo] + 1
+        }
+        else{
+          r[6] <- r[6] + 1
+        }
         largo <- 1
       }
     }
     if (largo!=1){
-      r[largo] <- r[largo] + 1
+      if(largo<=6){
+        r[largo] <- r[largo] + 1
+      }
+      else{
+        r[6] <- r[6] + 1
+      }
     } else{
       r[1] <- r[1] + 1
     }
     
-    r
+    
     suma <- 0
     for(i in 1:6){
       for(j in 1:6){
@@ -907,7 +917,6 @@ server <- function(input, output) {
     } else{
       rechazo_por_pvalue <- 0
     }
-    
     
     return(list(R, quantile_corridas, p_value, rechazo_por_region, rechazo_por_pvalue))
   }
