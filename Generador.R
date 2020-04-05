@@ -221,8 +221,6 @@ server <- function(input, output) {
         "Alguno de los valores introducidos es incorrecto, por favor verifique sus entradas."
       ))
       error <- 1
-    } else if(a*seed+c > ){
-      
     } else if(a >= m){
       showModal(modalDialog(
         title = "Error",
