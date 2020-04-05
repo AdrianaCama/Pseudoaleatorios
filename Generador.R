@@ -4,6 +4,7 @@ library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(ggfortify)
+#library(gmp)
 #library(devtools)
 #install_github("nik01010/dashboardthemes")
 
@@ -221,7 +222,7 @@ server <- function(input, output) {
         "Alguno de los valores introducidos es incorrecto, por favor verifique sus entradas."
       ))
       error <- 1
-    }else if(a >= m){
+    } else if(a >= m){
       showModal(modalDialog(
         title = "Error",
         "El valor de a debe ser menor al de m."
@@ -242,9 +243,9 @@ server <- function(input, output) {
     } else {
       error <- 0
       if (input$Checkbox == "Generar con función programada"){
-        numeros <<- unif_generator(n = n, seed = semilla, m = m, a = a, c = c)
+        numeros <- unif_generator(n = n, min = 0, max = 1, seed = semilla, m = m, a = a, c = c)
       } else if(input$Checkbox == "Generar con función de R"){
-        numeros <<- runif(n = n, 0, 1)
+        numeros <- runif(n = n, 0, 1)
       } 
     }
     
