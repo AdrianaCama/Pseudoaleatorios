@@ -128,7 +128,7 @@ input[type="radio"] {
 }
 
 /* Buttons */
-#Button_evaluate, #Button_go {
+#Button_evaluate, #Button_go, #download {
   color: white;
   font-family: 'Proza Libre', sans-serif;
   font-weight: bold;
@@ -138,23 +138,129 @@ input[type="radio"] {
 }
 
 
-
-
-
-
-
-
-.nav-tabs-custom .tab-content {
-  background-color: green;
-}
-
-.tab-content {
+#tabbox_generado, #tabbox_resultados {
   background: #134243;
-  border-color: transparent;
+  color: white;
 }
 
-.col-sm- {
-  background: orange;
+#tabbox_generado .header, #tabbox_resultados .header {
+  color: white;
 }
+
+#tabbox_generado li, #tabbox_resultados li {
+  color: white;
+}
+
+#tabbox_generado li a, #tabbox_resultados li a{
+  color: #7abbba;
+}
+
+#tabbox_generado li a:hover, #tabbox_resultados li a:hover{
+  color: white;
+}
+
+#tabbox_generado .active a:hover, #tabbox_resultados .active a:hover{
+  color: #092f2d;
+}
+
+.nav-tabs-custom ul .active {
+  background: yellow;
+  color: orange;
+}
+
+.nav-tabs-custom {
+  opacity: 0.9;
+  background: white;
+  /*background: rgba(9, 47, 45, 0.9); !important;*/
+}
+
+/* Background for right panels */
+.nav-tabs-custom .tab-content {
+  background: rgba(9, 47, 45);
+}
+
+.nav-tabs-custom .nav .nav-tabs {
+  background: #134243; !important;
+  color: white;
+}
+
+.nav-tabs-custom .tab-content .tab-pane {
+  background: rgb(0,0,0,0) !important;
+}
+
+
+/* Table design */
+
+/* Entries */
+
+.dataTables_length label{
+  font-family: 'Proza Libre', sans-serif;
+  font-weight: 500;
+  line-height: 1.1;
+  /* Telegram */
+  color: #05f7e7;
+  margin: auto;
+}
+
+.dataTables_length label select, .dataTables_length label select option{
+  font-family: 'Roboto', sans-serif;
+  background: #134243 !important;
+  border-color: rgba(0,0,0,0) !important;
+  /* Telegram */
+  color: #7abbba;
+}
+
+.dataTables_length label select.decorated option:hover{
+  box-shadow: 0 0 10px 100px #1882A8 inset;
+  /* Telegram */
+  color: white;
+}
+
+.dataTables_filter label{
+  font-family: 'Proza Libre', sans-serif;
+  font-weight: 500;
+  line-height: 1.1;
+  /* Telegram */
+  color: #05f7e7;
+  margin: auto;
+}
+
+.dataTables_filter input {
+  font-family: 'Roboto', sans-serif;
+  background: #134243 !important;
+  border-color: rgba(0,0,0,0) !important;
+  /* Telegram */
+  color: #7abbba;
+}
+
+#DataTables_Table_0 tbody .odd {
+  background: #134243 !important;
+  border-color: rgba(0,0,0,0) !important;
+  /* Telegram */
+  color: #7abbba;
+}
+
+#DataTables_Table_0 tbody .even {
+  background: #092f2d !important;
+  border-color: rgba(0,0,0,0) !important;
+  /* Telegram */
+  color: #7abbba;
+}
+
+
+
+#DataTables_Table_0_info {
+  color: yellow;
+}
+
+#DataTables_Table_0_paginate a, #DataTables_Table_0_paginate span .paginate_button {
+  color: yellow;
+}
+
+
+
+
+
+
 
 
