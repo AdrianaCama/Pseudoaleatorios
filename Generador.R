@@ -1219,7 +1219,7 @@ server <- function(input, output) {
         )
         ggplot(datos, aes(x)) + stat_function(fun = punif, args = list(0, 1), aes(color = "uniform"), size = 1.1) +
           geom_step(data=datos, mapping=aes(x=x, y=g, color = "generados")) +
-          scale_colour_manual(values = c("uniform" = "slateblue4", "generados" = "springgreen3"), 
+          scale_colour_manual(values = c("uniform" = "springgreen3", "generados" = "slateblue4"), 
                               labels = c("Función de distribución de los números generados", 
                                          "Función de distribución empírica"), 
                               name = NULL) +
