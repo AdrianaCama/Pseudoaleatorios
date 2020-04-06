@@ -1225,8 +1225,8 @@ server <- function(input, output) {
                               name = NULL) +
           ylab("Porcentaje") + 
           scale_y_continuous(labels=scales::percent) +
-          theme(legend.position = c(.67, .20), panel.background = element_blank(), 
-                legend.text=element_text(size=8))
+          theme(legend.position = c(.70, .17), panel.background = element_blank(), 
+                legend.text=element_text(size=12))
       })
       shinyjs::show(id = "hist_intervalos")
     }
