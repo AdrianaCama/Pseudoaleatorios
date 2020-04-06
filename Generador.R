@@ -534,21 +534,11 @@ server <- function(input, output) {
     }
     
     if(n>40){
-      if(alpha==0.2){
-        tabla_KS[41, 2] <- 1.07/sqrt(n)
-      }
-      if(alpha==0.1){
-        tabla_KS[41, 3] <- 1.22/sqrt(n)
-      }
-      if(alpha==0.05){
-        tabla_KS[41, 4] <- 1.36/sqrt(n)
-      }
-      if(alpha==0.025){
-        tabla_KS[41, 5] <- 1.52/sqrt(n)
-      }
-      if(alpha==0.01){
-        tabla_KS[41, 6] <- 1.63/sqrt(n)
-      }
+      tabla_KS[41, 2] <- 1.07/sqrt(n)
+      tabla_KS[41, 3] <- 1.22/sqrt(n)
+      tabla_KS[41, 4] <- 1.36/sqrt(n)
+      tabla_KS[41, 5] <- 1.52/sqrt(n)
+      tabla_KS[41, 6] <- 1.63/sqrt(n)
     }
     
     if(n<=40){
