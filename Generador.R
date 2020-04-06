@@ -1205,6 +1205,32 @@ server <- function(input, output) {
         output$text_region <- renderText({"No existe suficiente evidencia para rechazar la independencia de los números generados."})
       }
     }
+    
+    
+    
+    ### Gráficas extra ###
+    ######################
+    if(input$pruebas == "Prueba de Kolmogorov-Smirnov"){
+      output$hist_intervalos <- renderPlot({
+        num <- c(0,sort(numeros, decreasing=FALSE))
+        datos <- data.frame(
+          x = seq(0, 1, 1/length(numeros)),
+          g = num
+        )
+        ggplot(datos, aes(x)) + stat_function(fun = punif, args = list(0, 1), aes(color = "uniform"), size = 1.1) +
+          geom_step(data=datos, mapping=aes(x=x, y=g, color = "generados")) +
+          scale_colour_manual(values = c("uniform" = "seagreen2", "generados" = "firebrick4"), 
+                              labels = c("Función de distribución de los números generados", 
+                                         "Función de distribución empírica"), 
+                              name = NULL) +
+          ylab("Porcentaje") + 
+          scale_y_continuous(labels=scales::percent) +
+          theme(legend.position = c(.67, .20), panel.background = element_blank(), 
+                legend.text=element_text(size=8))
+      })
+      shinyjs::show(id = "hist_intervalos")
+    }
+    
   })
   
 }
