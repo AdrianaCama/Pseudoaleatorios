@@ -1217,7 +1217,8 @@ server <- function(input, output) {
           x = seq(0, 1, 1/length(numeros)),
           g = num
         )
-        ggplot(datos, aes(x)) + stat_function(fun = punif, args = list(0, 1), aes(color = "uniform"), size = 1.1) +
+        ggplot(datos, aes(x)) + stat_function(fun = punif, args = list(0, 1), aes(color = "uniform"),
+                                              size = 1.3) +
           geom_step(data=datos, mapping=aes(x=x, y=g, color = "generados")) +
           scale_colour_manual(values = c("uniform" = "springgreen3", "generados" = "slateblue4"), 
                               labels = c("Función de distribución de los números generados", 
