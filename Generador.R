@@ -365,9 +365,6 @@ server <- function(input, output) {
   # Prueba 2: "Prueba Serial"########################
   ###################################################
   ###################################################
-  
-  
-  
   SerialTest <- function(numeros, alfa){
     library(ggplot2)
     
